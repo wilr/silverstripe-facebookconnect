@@ -1,0 +1,1 @@
+<fb:like></fb:like>

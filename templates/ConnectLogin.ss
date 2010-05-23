@@ -1,0 +1,1 @@
+<fb:login-button perms="$Top.FacebookPermissions"></fb:login-button>

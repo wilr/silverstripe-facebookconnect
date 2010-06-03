@@ -26,10 +26,10 @@ the existing security. You can extend it using your own code but for now this is
 		$FirstName $LastName $Picture(small)
 	<% end_control %>
 	
-   If you have disabled the creation of members you can use the facebook specific member control. This still returns a 
+  * If you have disabled the creation of members you can use the facebook specific member control. This still returns a 
    member object the only difference is that it won't save the information to the database
 
-	<% control FacebookCurrentMember %>
+	<% control CurrentFacebookMember %>
 		$FirstName $LastName $Picture(small)
 	<% end_control %>
 	
@@ -70,6 +70,7 @@ the existing security. You can extend it using your own code but for now this is
     cached on the controller object. So for example if this is in your Page_Controller class
 
 	$this->CurrentFacebookMember(); // returns the current facebook member (wrapped in a SS Member Object)
+	
 	$this->getFacebook(); 			// returns the API connection which you can use to write your own query
 	
 ### Configuration

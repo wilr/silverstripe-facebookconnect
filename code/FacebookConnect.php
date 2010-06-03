@@ -117,7 +117,7 @@ class FacebookConnect extends Extension {
 		return self::$api_secret;
 	}
 	
-	public static function getFacebook() {
+	public function getFacebook() {
 		return $this->facebook;
 	}
 	

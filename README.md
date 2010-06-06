@@ -22,16 +22,20 @@ the existing security. You can extend it using your own code but for now this is
    If you haven't disabled the FacebookConnect::$create_member variable you can access the facebooks member information
    by using..
 
-	<% control CurrentMember %>
-		$FirstName $LastName $Picture(small)
-	<% end_control %>
+~~~
+<% control CurrentMember %>
+	$FirstName $LastName $Picture(small)
+<% end_control %>
+~~~
 	
   * If you have disabled the creation of members you can use the facebook specific member control. This still returns a 
    member object the only difference is that it won't save the information to the database
 
-	<% control CurrentFacebookMember %>
-		$FirstName $LastName $Picture(small)
-	<% end_control %>
+~~~
+<% control CurrentFacebookMember %>
+	$FirstName $LastName $Picture(small)
+<% end_control %>
+~~~
 	
 ### What it does not provide (yet)
 
@@ -47,9 +51,11 @@ the existing security. You can extend it using your own code but for now this is
   * Once you have registered your app then set the following in your mysite/_config.php file. Replace the values with the ones
     you should get after registering your app
 
-	FacebookConnect::set_api_key('api-key');
-	FacebookConnect::set_api_secret('api-secret');
-	FacebookConnect::set_app_id('api-id');
+~~~
+FacebookConnect::set_api_key('api-key');
+FacebookConnect::set_api_secret('api-secret');
+FacebookConnect::set_app_id('api-id');
+~~~
 	
   * You need to add the fb: namespace to your Page.ss file. For example your <html> tag at the top should look like
 

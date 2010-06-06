@@ -166,6 +166,8 @@ class FacebookConnect extends Extension {
 						$member->write();
 						$member->logIn();
 						
+						Session::set('logged-in-member-via-faceboook', true);
+						
 						if($groups = self::get_member_groups()) {
 							foreach($groups as $group) {
 								Group::add_to_group_by_code($member, $group);
@@ -173,9 +175,17 @@ class FacebookConnect extends Extension {
 						}
 					}
 				}
-			} catch (FacebookApiException $e) {
-				user_error($e, E_USER_WARNING);
-			}
+				else {
+					$this->facebookmember = false;
+					
+					if(Session::get('logged-in-member-via-faceboook')) {
+						Session::clear('logged-in-member-via-faceboook');
+						
+						$member = Member::currrentUser();
+						if($member) $member->logOut();
+					}
+				}
+			} catch (FacebookApiException $e) { }
 		}
 
 		// add the javascript requirements 
@@ -188,7 +198,7 @@ class FacebookConnect extends Extension {
 }());			
 JS
 );
-		
+
 		$appID = self::get_app_id();
 		$sessionJSON = json_encode($session);
 		

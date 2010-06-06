@@ -57,43 +57,54 @@ FacebookConnect::set_api_secret('api-secret');
 FacebookConnect::set_app_id('api-id');
 ~~~
 	
-  * You need to add the fb: namespace to your Page.ss file. For example your <html> tag at the top should look like
+You need to add the fb: namespace to your Page.ss file. For example your <html> tag at the top should look like
 
-	<html lang="en" xmlns:fb="http://www.facebook.com/2008/fbml">
-	
-  * Once you have done that you should be able to use the includes provided in this module. Note you must include the ConnectRoot.ss
-	include. So include the following code in your template
-	
-	<% include ConnectRoot %>
-	<% if FacebookConnectMember %>
-		<p>Hi $FacebookConnectMember.FirstName
-		<% include ConnectLogout %>
-	<% else %>
-		<% include ConnectLogin %>
-	<% end_if %>
-	
-  * You can also access the facebook member information in your PHP code. The Facebook API connection and current member are
-    cached on the controller object. So for example if this is in your Page_Controller class
+~~~
+<html lang="en" xmlns:fb="http://www.facebook.com/2008/fbml">
+~~~
 
-	$this->CurrentFacebookMember(); // returns the current facebook member (wrapped in a SS Member Object)
+Once you have done that you should be able to use the includes provided in this module. Note you must include the ConnectRoot.ss
+include. So include the following code in your template
+
+~~~	
+<% include ConnectRoot %>
+<% if CurrentFacebookMember %>
+	<p>Hi $CurrentFacebookMember.FirstName</p>
+	<% include ConnectLogout %>
+<% else %>
+	<% include ConnectLogin %>
+<% end_if %>
+~~~
 	
-	$this->getFacebook(); 			// returns the API connection which you can use to write your own query
+You can also access the facebook member information in your PHP code. The Facebook API connection and current member are
+cached on the controller object. So for example if this is in your Page_Controller class
+
+~~~
+$this->CurrentFacebookMember(); // returns the current facebook member (wrapped in a SS Member Object)	
+$this->getFacebook(); 			// returns the API connection which you can use to write your own query
+~~~
 	
 ### Configuration
 
 By default users who login to your site via facebook (and give your website permission) are created member objects and saved to 
 your database. If you wish to turn off saving member data to your database you can set it in your mysite/_config.php file
 
-	FacebookConnect::set_create_member(false)
+~~~	
+FacebookConnect::set_create_member(false)
+~~~	
 	
 However if you want this functionality enabled (which it is by default) but the members saved in a special group you can define
 the groups to add them to (mailing lists, user permissions etc) by defining the following in your mysite/_config.php file
 
-	FacebookConnect::set_member_groups('facebook-members');
+~~~	
+FacebookConnect::set_member_groups('facebook-members');
+~~~
 	
 Or as an array
 
-	FacebookConnect::set_member_groups(array('group-1', 'group-2'));
+~~~	
+FacebookConnect::set_member_groups(array('group-1', 'group-2'));
+~~~	
 	
 ### License
 

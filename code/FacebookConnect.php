@@ -126,6 +126,7 @@ class FacebookConnect extends Extension {
 	 * required files for facebook connect.
 	 */
 	public function onBeforeInit() {
+		
 		$this->facebook = new Facebook(array(
 			'appId'  => self::get_app_id(),
 			'secret' => self::get_api_secret(),
@@ -139,7 +140,6 @@ class FacebookConnect extends Extension {
 				$result = $this->facebook->api('/me');
 				
 				if($result) {
-					
 					// check to see if a member already with that email
 					$email = (isset($result['email'])) ? $result['email'] : false;
 					if($email) {
@@ -157,7 +157,7 @@ class FacebookConnect extends Extension {
 					$member->Email 		= (isset($result['email'])) ? $result['email'] : "";
 					$member->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";
 					$member->Surname	= (isset($result['last_name'])) ? $result['last_name'] : "";
-					$member->FacebookLink	= (isset($result['link'])) ? $result['link'] : "";
+					$member->Link		= (isset($result['link'])) ? $result['link'] : "";
 					$member->FacebookUID	= (isset($result['id'])) ? $result['id'] : "";
 					$member->FacebookTimezone = (isset($result['timezone'])) ? $result['timezone'] : "";
 					$this->facebookmember = $member;
@@ -194,6 +194,12 @@ class FacebookConnect extends Extension {
 	var e = document.createElement('script');
 	e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
 	e.async = true;
+	
+	var root = document.createElement('div');
+	root.setAttribute('id', 'fb-root');
+
+	document.body.appendChild(root);
+	
 	document.getElementById('fb-root').appendChild(e);
 }());			
 JS
@@ -242,6 +248,15 @@ JS
 	public function FacebookLogoutLink() {
 		return $this->facebook->getLogoutUrl();
 	}
+
+	/**
+	 * Get the login link
+	 *
+	 * @return String
+	 */
+	public function FacebookLoginLink() {
+		return $this->facebook->getLoginUrl();
+	}
 	
 	/**
 	 * Permissions to require on the login button
@@ -258,4 +273,5 @@ JS
 			
 		return implode(',', $permissions);
  	}
+
 }

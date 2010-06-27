@@ -22,14 +22,25 @@ class FacebookMember extends DataObjectDecorator {
 		);
 	}
 	
+	function updateCMSFields(&$fields) {
+		$fields->makeFieldReadonly('Email');
+	}
+	
 	/**
-	 * Return the users image from the facebook connect.
+	 * After logging out on the security logout panel log out of facebook
 	 *
+	 */
+	function memberLoggedOut() {
+		if(!Director::redirected_to()) {
+			return Director::redirect(Controller::curr()->FacebookLogoutLink());
+		}
+	}
+	/**
 	 * Takes one of 'square' (50x50), 'small' (50xXX) or 'large' (200xXX)
 	 *
 	 * @return String
 	 */
-	public function Picture($type = "square") {
+	function Picture($type = "square") {
 		$controller = Controller::curr();
 	
 		if($controller && ($member = $controller->CurrentFacebookMember())) {
@@ -37,5 +48,14 @@ class FacebookMember extends DataObjectDecorator {
 		}
 
 		return false;
+	}
+	
+	function updateFacebookFields($result) {
+		$this->owner->Email 	= (isset($result['email'])) ? $result['email'] : "";
+		$this->owner->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";
+		$this->owner->Surname	= (isset($result['last_name'])) ? $result['last_name'] : "";
+		$this->owner->Link		= (isset($result['link'])) ? $result['link'] : "";
+		$this->owner->FacebookUID	= (isset($result['id'])) ? $result['id'] : "";
+		$this->owner->FacebookTimezone = (isset($result['timezone'])) ? $result['timezone'] : "";
 	}
 }

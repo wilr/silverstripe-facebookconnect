@@ -48,7 +48,7 @@ class FacebookMember extends DataObjectDecorator {
 	function getAvatar($type = "square") {
 		$controller = Controller::curr();
 	
-		if($controller && ($member = $controller->CurrentFacebookMember())) {
+		if($controller && ($member = $controller->getCurrentFacebookMember())) {
 			return "http://graph.facebook.com/" . $member->FacebookUID ."/picture?type=$type";
 		}
 

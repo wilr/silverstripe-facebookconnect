@@ -26,10 +26,10 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
    by using:
 
 	<% control CurrentMember %>
-		$FirstName $LastName $Avatr(small)
+		$FirstName $LastName $Avatar(small)
 	<% end_control %>``
 	
-If you have disabled the creation of members you can use the facebook specific member control. This still returns a 
+If you have disabled the creation of members you can use the Facebook specific member control. This still returns a 
 member object the only difference is that it won't save the information to the database
 
 	<% control CurrentFacebookMember %>
@@ -42,7 +42,7 @@ member object the only difference is that it won't save the information to the d
     stories to a users wall, interacting with events, groups and other things like friends.
 
   * More controls over the logged in members information (eg status updates, events, groups). If you need this functionality you
-	can build this ontop of the Facebook API which is exposed:
+	can build this on top of the Facebook API which is exposed:
 
 	function foo() {
 		// returns the likes
@@ -74,18 +74,18 @@ Once you have done that you should be able to use the includes provided in this 
 		<% include ConnectLogin %>
 	<% end_if %>
 
-You can also access the facebook member information in your PHP code. The Facebook API connection and current member are
+You can also access the Facebook member information in your PHP code. The Facebook API connection and current member are
 cached on the controller object. So for example if this is in your Page_Controller class
 
 	// returns the current facebook member (wrapped in a SS Member Object)	
-	$this->CurrentFacebookMember();
+	$this->getCurrentFacebookMember();
 	
 	// returns the API connection which you can use to write your own query
 	$this->getFacebook(); 
 	
 ### Configuration
 
-By default users who login to your site via facebook (and give your website permission) are created member objects and saved to 
+By default users who login to your site via Facebook (and give your website permission) are created member objects and saved to 
 your database. If you wish to turn off saving member data to your database you can set it in your mysite/_config.php file
 
 	FacebookConnect::set_create_member(false)

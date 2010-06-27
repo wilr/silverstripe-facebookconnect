@@ -1,9 +1,8 @@
 <?php
 
 /**
- * Main controller class to handle facebook connect implementations. Extends the built in
+ * Main controller class to handle Facebook Connect implementations. Extends the built in
  * SilverStripe controller to add addition template functionality.
- *
  *
  * @package facebookconnect
  */
@@ -11,7 +10,7 @@
 class FacebookConnect extends Extension {
 	
 	/**
-	 * When a user iteracts with the website should we create a
+	 * When a user interacts with the website should we create a
 	 * {@link Member} on the site with their details and login that {@link Member}
 	 * object via {@link Member->login()} 
 	 *
@@ -25,8 +24,8 @@ class FacebookConnect extends Extension {
 	
 	/**
 	 * If creating members is enabled then its a smart idea to set a group
-	 * to save all the members too. For instance you might want to save all fbconnect
-	 * members automatically to your mailing list.
+	 * to save all the members too. For instance you might want to save all Facebook Connect
+	 * members automatically to your mailing list once they approve the app.
 	 *
 	 * You must have {@link FacebookConnect::$create_member} set to true (as it is by default)
 	 * for this to make any effect.
@@ -36,7 +35,7 @@ class FacebookConnect extends Extension {
 	private static $member_groups = array();
 	
 	/**
-	 * The permissions which you require for your application. The facebook api has a
+	 * The permissions which you require for your application. The Facebook Connect API has a
 	 * list of all the permissions. If you leave the $create_member option to true
 	 * by default it adds the email permission no matter what you set here
 	 *
@@ -55,19 +54,33 @@ class FacebookConnect extends Extension {
 	private static $sync_member_details = true;
 	
 	/**
-	 * @var Facebook - facebook client
+	 * @var Facebook - Facebook client
 	 */
 	private $facebook;
 	
 	/**
-	 * @var Member The facebook member logged in 
+	 * @var Member The Facebook member logged in 
 	 */
 	private $facebookmember;
 	
+	/**
+	 * @see FacebookConnect::set_api_key($key);
+	 * @var String API key for your Facebook App
+	 */
 	private static $api_key = "";
-	
+
+	/**
+	 * @see FacebookConnect::set_api_secret($key);
+	 *
+	 * @var String API Secret for your Facebook App
+	 */	
 	private static $api_secret = "";
 	
+	/**
+	 * @see FacebookConnect::set_app_id($key);
+	 *
+	 * @var String ID for your App
+	 */	
 	private static $app_id = "";
 	
 	/**
@@ -265,7 +278,7 @@ JS
 	 *
 	 * @return ArrayData
 	 */
-	public function CurrentFacebookMember() {
+	public function getCurrentFacebookMember() {
 		return (isset($this->facebookmember) && is_a($this->facebookmember, 'Member')) ? $this->facebookmember : false;
 	}
 	
@@ -274,7 +287,7 @@ JS
 	 * 
 	 * @return String
 	 */
-	public function FacebookLogoutLink() {
+	public function getFacebookLogoutLink() {
 		return $this->facebook->getLogoutUrl();
 	}
 
@@ -283,7 +296,7 @@ JS
 	 *
 	 * @return String
 	 */
-	public function FacebookLoginLink() {
+	public function getFacebookLoginLink() {
 		return $this->facebook->getLoginUrl();
 	}
 	
@@ -292,7 +305,7 @@ JS
 	 *
 	 * @return String
 	 */
-	public function FacebookPermissions() {
+	public function getFacebookPermissions() {
 		
 		$permissions = self::get_permissions();
 		

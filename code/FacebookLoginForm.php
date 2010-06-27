@@ -24,11 +24,11 @@ class FacebookLoginForm extends MemberLoginForm {
 		}
 		else {
 			$fields = new FieldSet(
-				new LiteralField('FacebookLoginIn', "<fb:login-button perms='". $controller->FacebookPermissions ."'></fb:login-button>")
+				new LiteralField('FacebookLoginIn', "<fb:login-button perms='". $controller->getFacebookPermissions() ."'></fb:login-button>")
 			);
 			
 			$actions = new FieldSet(
-				new LiteralField('FacebookLoginLink', "<!-- <a href='".$controller->FacebookLoginLink() ."'>". _t('FacebookLoginForm.LOGIN', 'Login') ."</a> -->")
+				new LiteralField('FacebookLoginLink', "<!-- <a href='".$controller->getFacebookLoginLink() ."'>". _t('FacebookLoginForm.LOGIN', 'Login') ."</a> -->")
 			);
 		}
 		

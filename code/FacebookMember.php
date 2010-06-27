@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Temp facebook member class to wrap the member functionality of the facebook
+ * Facebook member class to wrap the member functionality of the Facebook
  * members into the member object.
  *
  * An extension to the built in {@link Member} class this adds the fields which
@@ -30,12 +30,13 @@ class FacebookMember extends DataObjectDecorator {
 	}
 	
 	/**
-	 * After logging out on the security logout panel log out of facebook
-	 *
+	 * After logging out on the security logout panel log out of Facebook
 	 */
 	function memberLoggedOut() {
 		if(!Director::redirected_to()) {
-			return Director::redirect(Controller::curr()->FacebookLogoutLink());
+			if(Controller::curr()->getCurrentFacebookMember()) {
+				return Director::redirect(Controller::curr()->getFacebookLogoutLink());
+			}
 		}
 	}
 	

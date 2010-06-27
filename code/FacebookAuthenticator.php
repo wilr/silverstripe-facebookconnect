@@ -15,7 +15,7 @@ class FacebookAuthenticator extends Authenticator {
 	 *
 	 * @return false|Member
 	 */
-	public static function authenticate($data, $form = null) {	
+	public static function authenticate($RAW_data, Form $form = null) {
 		return ($member = Member::currentMember()) ? $member : false;
 	}
 

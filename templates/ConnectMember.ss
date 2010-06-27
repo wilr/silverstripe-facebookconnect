@@ -1,9 +1,7 @@
-<% if CurrentFacebookMember %>
-	<% control CurrentFacebookMember %>
-		$ClassName
+<% if CurrentMember %>
+	<% control CurrentMember %>
 		<p>Welcome back $FirstName.</p>
 
-		<img src="$Picture">
+		<img src="$Avatar(square)" alt="$FirstName" />
 	<% end_control %>
 <% end_if %>
-	

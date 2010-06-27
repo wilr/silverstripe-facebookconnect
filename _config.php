@@ -6,4 +6,8 @@
 // adds an extension hook to member
 DataObject::add_extension('Member', 'FacebookMember');
 
+// adds the code needed to check facebook
 DataObject::add_extension('Controller', 'FacebookConnect');
+
+// adds the authenticator to the built in login form
+Authenticator::register('FacebookAuthenticator');

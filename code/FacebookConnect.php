@@ -46,6 +46,15 @@ class FacebookConnect extends Extension {
 	private static $permissions = array();
 	
 	/**
+	 * Syncs the users details between Facebook and the member database for existing
+	 * members. If you wish for data to be persistent then it is recommended to sync
+	 * data (email, names)
+	 *
+	 * @var bool
+	 */
+	private static $sync_member_details = true;
+	
+	/**
 	 * @var Facebook - facebook client
 	 */
 	private $facebook;
@@ -121,6 +130,14 @@ class FacebookConnect extends Extension {
 		return $this->facebook;
 	}
 	
+	public function set_sync_member_details($bool) {
+		self::$sync_member_details = $bool;
+	}
+	
+	public function get_sync_member_details() {
+		return self::$sync_member_details;
+	}
+	
 	/**
 	 * Extends the built in {@link Controller::init()} function to load the 
 	 * required files for facebook connect.
@@ -133,61 +150,75 @@ class FacebookConnect extends Extension {
 			'cookie' => true,
 		));
 		
+		$this->facebookmember = false;
+							
 		$session = $this->facebook->getSession();
 
 		if($session) {
+			// the user is logged into Facebook check to see if this member
+			// is currently logged into SilverStripe and if so attempt to merge
+			// the accounts otherwise create a new member object
 			try {
 				$result = $this->facebook->api('/me');
-				
-				if($result) {
-					// check to see if a member already with that email
-					$email = (isset($result['email'])) ? $result['email'] : false;
-					if($email) {
-						$member = DataObject::get_one('Member', "Email = '". Convert::raw2sql($email) ."'");
+
+				if($uid = $this->facebook->getUser()) {
+					// if logged in and authorized to fb sync details
+					if($member = Member::currentUser()) {
+						$member->updateFacebookFields($result);
 						
-						if(!$member) $member = new Member();
+						if(self::get_sync_member_details()) {
+							$member->write();
+						}
 					}
 					else {
-						// create a new member object can cache it on this controller.
-						// if we have create member object enabled then we can also write
-						// it to the database and log that member in!
-						$member = new Member();
-					}
+						// member is not currently logged into SilverStripe. Look up for
+						// a member with the UID which matches and log them in or
+						// create a new member
+						$SQL_uid = Convert::raw2sql($uid);
 
-					$member->Email 		= (isset($result['email'])) ? $result['email'] : "";
-					$member->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";
-					$member->Surname	= (isset($result['last_name'])) ? $result['last_name'] : "";
-					$member->Link		= (isset($result['link'])) ? $result['link'] : "";
-					$member->FacebookUID	= (isset($result['id'])) ? $result['id'] : "";
-					$member->FacebookTimezone = (isset($result['timezone'])) ? $result['timezone'] : "";
-					$this->facebookmember = $member;
-					
-					if(self::create_member()) {
-						$member->write();
-						$member->logIn();
-						
-						Session::set('logged-in-member-via-faceboook', true);
-						
-						if($groups = self::get_member_groups()) {
-							foreach($groups as $group) {
-								Group::add_to_group_by_code($member, $group);
+						if($member = DataObject::get_one('Member', "\"FacebookUID\" = '$SQL_uid'")) {
+							$member->updateFacebookFields($result);
+							
+							if(self::get_sync_member_details()) {
+								$member->write();
+							}
+							
+							$member->logIn();
+						}
+						else {
+							// create a new member
+							$member = new Member();
+							$member->updateFacebookFields($result);
+							
+							if(self::create_member()) {
+								$member->write();
+								$member->logIn();
 							}
 						}
 					}
-				}
-				else {
-					$this->facebookmember = false;
 					
-					if(Session::get('logged-in-member-via-faceboook')) {
-						Session::clear('logged-in-member-via-faceboook');
-						
-						$member = Member::currrentUser();
-						if($member) $member->logOut();
+					Session::set('logged-in-member-via-faceboook', true);
+					
+					if($groups = self::get_member_groups()) {
+						foreach($groups as $group) {
+							Group::add_to_group_by_code($member, $group);
+						}
 					}
 				}
+		
+				$this->facebookmember = $member;
 			} catch (FacebookApiException $e) { }
 		}
-
+		else {
+			// no session or cookie so they have logged out of facebook
+			if($logged = Session::get('logged-in-member-via-faceboook')) {
+				Session::clear('logged-in-member-via-faceboook');
+					
+				$member = Member::currentUser();
+				if($member) $member->logOut();
+			}
+		}
+		
 		// add the javascript requirements 
 		Requirements::customScript(<<<JS
 (function() {
@@ -204,7 +235,6 @@ class FacebookConnect extends Extension {
 }());			
 JS
 );
-
 		$appID = self::get_app_id();
 		$sessionJSON = json_encode($session);
 		
@@ -222,7 +252,6 @@ window.fbAsyncInit = function() {
 		window.location.reload();
 	});
 };
-		
 JS
 );
 	}
@@ -237,7 +266,7 @@ JS
 	 * @return ArrayData
 	 */
 	public function CurrentFacebookMember() {
-		return ($this->facebookmember) ? $this->facebookmember : false;
+		return (isset($this->facebookmember) && is_a($this->facebookmember, 'Member')) ? $this->facebookmember : false;
 	}
 	
 	/**

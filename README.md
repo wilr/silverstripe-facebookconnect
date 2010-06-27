@@ -8,29 +8,32 @@
  * SilverStripe 2.4 or newer.
 
 ## Overview
-The module provides a **basic** interface for implementing facebook connect on a website. Specifically its to integrate
-user sign-on and sign up on a SilverStripe website - for example allowing login functionality by facebook rather than
-the existing security. You can extend it using your own code but for now this is a super basic edition
+The module provides a **basic** interface for implementing Facebook connect on a website. Specifically its to integrate
+user sign-on and sign up on a SilverStripe website. For example allowing login functionality by Facebook rather than
+the existing security functionality. 
+
+This has been designed to use the Javascript SDK rather than the OAuth interface.
 
 ### What it provides
 
- * Loads and setups Facebook Connect interactivity
- * Authenticates users visiting the site - if they are logged into facebook then you can access there information via
+ * Loads and setups Facebook Connect for Single Sign on via the Javascript SDK
+
+ * Authenticates users visiting the site - if they are logged into Facebook then you can access there information via
    the following controls. You can also optionally set whether to save visitors information as members on your site
    (for example if you need to cache their information)
 	
-   If you haven't disabled the FacebookConnect::$create_member variable you can access the facebooks member information
-   by using..
+   If you haven't disabled the FacebookConnect::$create_member variable you can access the Facebook's member information
+   by using:
 
-	``<% control CurrentMember %>
-		$FirstName $LastName $Picture(small)
+	<% control CurrentMember %>
+		$FirstName $LastName $Avatr(small)
 	<% end_control %>``
 	
 If you have disabled the creation of members you can use the facebook specific member control. This still returns a 
 member object the only difference is that it won't save the information to the database
 
 	<% control CurrentFacebookMember %>
-		$FirstName $LastName $Picture(small)
+		$FirstName $LastName $Avatar(small)
 	<% end_control %>
 	
 ### What it does not provide (yet)
@@ -38,11 +41,18 @@ member object the only difference is that it won't save the information to the d
   * This current iteration only provides the backbone. In future updates I am aiming to integrate things like publishing
     stories to a users wall, interacting with events, groups and other things like friends.
 
-  * More controls over the logged in members information (eg status updates, events, groups)
+  * More controls over the logged in members information (eg status updates, events, groups). If you need this functionality you
+	can build this ontop of the Facebook API which is exposed:
+
+	function foo() {
+		// returns the likes
+		
+		$likes = $this->getFacebook()->api('/me/likes');
+	}
 	
 ### How to use
 
-  * To setup facebook connect your first need to download this and put it in your SilverStripe sites root folder. 
+  * To setup Facebook connect your first need to download this and put it in your SilverStripe sites root folder. 
   * You need to register your website / application at http://developers.facebook.com/setup
   * Once you have registered your app then set the following in your mysite/_config.php file. Replace the values with the ones
     you should get after registering your app
@@ -55,10 +65,8 @@ You need to add the fb: namespace to your Page.ss file. For example your <html> 
 
 	<html lang="en" xmlns:fb="http://www.facebook.com/2008/fbml">
 
-Once you have done that you should be able to use the includes provided in this module. Note you must include the ConnectRoot.ss
-include. So include the following code in your template
+Once you have done that you should be able to use the includes provided in this module.
 
-	<% include ConnectRoot %>
 	<% if CurrentFacebookMember %>
 		<p>Hi $CurrentFacebookMember.FirstName</p>
 		<% include ConnectLogout %>

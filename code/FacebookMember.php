@@ -24,6 +24,9 @@ class FacebookMember extends DataObjectDecorator {
 	
 	function updateCMSFields(&$fields) {
 		$fields->makeFieldReadonly('Email');
+		$fields->makeFieldReadonly('FacebookUID');
+		$fields->makeFieldReadonly('FacebookLink');
+		$fields->makeFieldReadonly('FacebookTimezone');
 	}
 	
 	/**
@@ -35,12 +38,13 @@ class FacebookMember extends DataObjectDecorator {
 			return Director::redirect(Controller::curr()->FacebookLogoutLink());
 		}
 	}
+	
 	/**
 	 * Takes one of 'square' (50x50), 'small' (50xXX) or 'large' (200xXX)
 	 *
 	 * @return String
 	 */
-	function Picture($type = "square") {
+	function getAvatar($type = "square") {
 		$controller = Controller::curr();
 	
 		if($controller && ($member = $controller->CurrentFacebookMember())) {
@@ -50,6 +54,11 @@ class FacebookMember extends DataObjectDecorator {
 		return false;
 	}
 	
+	/**
+	 * Sync the new data from a users Facebook profile to the member database.
+	 *
+	 * @param array
+	 */
 	function updateFacebookFields($result) {
 		$this->owner->Email 	= (isset($result['email'])) ? $result['email'] : "";
 		$this->owner->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";

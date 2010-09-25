@@ -54,16 +54,6 @@ class FacebookConnect extends Extension {
 	private static $sync_member_details = true;
 	
 	/**
-	 * @var Facebook - Facebook client
-	 */
-	private $facebook;
-	
-	/**
-	 * @var Member The Facebook member logged in 
-	 */
-	private $facebookmember;
-	
-	/**
 	 * @see FacebookConnect::set_api_key($key);
 	 * @var String API key for your Facebook App
 	 */
@@ -139,8 +129,49 @@ class FacebookConnect extends Extension {
 		return self::$api_secret;
 	}
 	
+	/**
+	 * Return the Facebook API class wrapped in a {@link SS_Cache} for
+	 * performance. Creates a new object if no connection has been implemented
+	 *
+	 * @return Facebook
+	 */
 	public function getFacebook() {
-		return $this->facebook;
+		$cache = SS_Cache::factory(get_class($this));
+		
+		if(!($result = unserialize($cache->load(get_class($this))))) {
+			$result = new Facebook(array(
+				'appId'  => self::get_app_id(),
+				'secret' => self::get_api_secret(),
+				'cookie' => true,
+			));
+			
+			$cache->save(serialize($result));
+		}
+
+		return $result;
+	}
+	
+	/**
+	 * Call an API function but cache the result. 
+	 *
+	 * Passes the call through to {@link Facebook::api()} but looks up the
+	 * value in the {@link SS_Cache} first.
+	 *
+	 * @param String name of value to cache as
+	 * @param String params to pass through to the root api call
+	 *
+	 * @return the decoded response from the api
+	 */
+	public function callCached($name, $params) {
+		$cache = SS_Cache::factory(get_class($this));
+		
+		if(!($result = unserialize($cache->load(get_class($this) . $name)))) {
+			$result = $this->getFacebook()->api($params);
+			
+			$cache->save(serialize($result));
+		}
+		
+		return $result;
 	}
 	
 	public function set_sync_member_details($bool) {
@@ -156,25 +187,16 @@ class FacebookConnect extends Extension {
 	 * required files for facebook connect.
 	 */
 	public function onBeforeInit() {
-		
-		$this->facebook = new Facebook(array(
-			'appId'  => self::get_app_id(),
-			'secret' => self::get_api_secret(),
-			'cookie' => true,
-		));
-		
-		$this->facebookmember = false;
-							
-		$session = $this->facebook->getSession();
+		$session = $this->getFacebook()->getSession();
 
 		if($session) {
 			// the user is logged into Facebook check to see if this member
 			// is currently logged into SilverStripe and if so attempt to merge
 			// the accounts otherwise create a new member object
 			try {
-				$result = $this->facebook->api('/me');
-
-				if($uid = $this->facebook->getUser()) {
+				if($uid = $this->getFacebook()->getUser()) {
+					$result = $this->callCached('me', '/me');
+					
 					// if logged in and authorized to fb sync details
 					if($member = Member::currentUser()) {
 						$member->updateFacebookFields($result);
@@ -226,7 +248,7 @@ class FacebookConnect extends Extension {
 			// no session or cookie so they have logged out of facebook
 			if($logged = Session::get('logged-in-member-via-faceboook')) {
 				Session::clear('logged-in-member-via-faceboook');
-					
+				
 				$member = Member::currentUser();
 				if($member) $member->logOut();
 			}
@@ -288,7 +310,7 @@ JS
 	 * @return String
 	 */
 	public function getFacebookLogoutLink() {
-		return $this->facebook->getLogoutUrl();
+		return $this->getFacebook()->getLogoutUrl();
 	}
 
 	/**
@@ -297,7 +319,7 @@ JS
 	 * @return String
 	 */
 	public function getFacebookLoginLink() {
-		return $this->facebook->getLoginUrl();
+		return $this->getFacebook()->getLoginUrl();
 	}
 	
 	/**

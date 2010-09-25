@@ -148,7 +148,7 @@ class FacebookConnect extends Extension {
 				'cookie' => true,
 			));
 			
-			$cache->save(serialize($result));
+			$cache->save(serialize($result), get_class($this));
 		}
 
 		return $result;
@@ -174,7 +174,7 @@ class FacebookConnect extends Extension {
 		if(!($result = unserialize($cache->load(get_class($this) . $name)))) {
 			$result = $this->getFacebook()->api($params);
 			
-			$cache->save(serialize($result));
+			$cache->save(serialize($result), get_class($this) . $name);
 		}
 		
 		return $result;

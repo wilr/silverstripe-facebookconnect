@@ -33,9 +33,16 @@ class FacebookMember extends DataObjectDecorator {
 	 * After logging out on the security logout panel log out of Facebook
 	 */
 	function memberLoggedOut() {
+		$controller = Controller::curr();
+		
 		if(!Director::redirected_to()) {
-			if(Controller::curr()->getCurrentFacebookMember()) {
-				return Director::redirect(Controller::curr()->getFacebookLogoutLink());
+			if($controller->getCurrentFacebookMember()) {
+				$session = $controller->getFacebook()->getSession();
+
+				// have to bruteforce this as Security/logout does its own redirection which
+				// we have no control over
+				header('Location: https://www.facebook.com/logout.php?access_token='.$session['access_token'] . '&next='. Director::absoluteBaseURL() .'?updatecache=1');
+				die();
 			}
 		}
 	}
@@ -47,7 +54,7 @@ class FacebookMember extends DataObjectDecorator {
 	 */
 	function getAvatar($type = "square") {
 		$controller = Controller::curr();
-	
+
 		if($controller && ($member = $controller->getCurrentFacebookMember())) {
 			return "http://graph.facebook.com/" . $member->FacebookUID ."/picture?type=$type";
 		}

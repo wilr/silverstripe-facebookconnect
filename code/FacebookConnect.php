@@ -73,6 +73,9 @@ class FacebookConnect extends Extension {
 	 */	
 	private static $app_id = "";
 	
+	
+	public $facebookmember = false;
+	
 	/**
 	 * Sets whether a {@link Member} object should be created when a facebook member on the
 	 * site authenicates. If this is set to false to access the member and its data you will
@@ -189,7 +192,7 @@ class FacebookConnect extends Extension {
 	public function onBeforeInit() {
 		$session = $this->getFacebook()->getSession();
 
-		if($session) {
+		if(!isset($_GET['updatecache']) && $session) {
 			// the user is logged into Facebook check to see if this member
 			// is currently logged into SilverStripe and if so attempt to merge
 			// the accounts otherwise create a new member object
@@ -240,13 +243,15 @@ class FacebookConnect extends Extension {
 						}
 					}
 				}
-		
+				
 				$this->facebookmember = $member;
+				
 			} catch (FacebookApiException $e) { }
 		}
 		else {
 			// no session or cookie so they have logged out of facebook
 			if($logged = Session::get('logged-in-member-via-faceboook')) {
+
 				Session::clear('logged-in-member-via-faceboook');
 				
 				$member = Member::currentUser();
@@ -301,8 +306,9 @@ JS
 	 * @return ArrayData
 	 */
 	public function getCurrentFacebookMember() {
-		return (isset($this->facebookmember) && is_a($this->facebookmember, 'Member')) ? $this->facebookmember : false;
+		return (isset($this->facebookmember) && $this->facebookmember) ? $this->facebookmember : false;
 	}
+	
 	
 	/**
 	 * Logout link
@@ -310,7 +316,9 @@ JS
 	 * @return String
 	 */
 	public function getFacebookLogoutLink() {
-		return $this->getFacebook()->getLogoutUrl();
+		$link = $this->getLink();
+		
+		return $this->getFacebook()->getLogoutUrl(array('next' => Controller::join_links($link, '?updatecache=1')));
 	}
 
 	/**
@@ -319,7 +327,30 @@ JS
 	 * @return String
 	 */
 	public function getFacebookLoginLink() {
-		return $this->getFacebook()->getLoginUrl();
+		$link = $this->getLink();
+		
+		return $this->getFacebook()->getLoginUrl(array('next' => Controller::join_links($link, '?updatecache=1')));
+	}
+	
+	/**
+	 * Generate the link to the public accessible page this
+	 * is being applied too. All controllers in SS do something completely
+ 	 * different so can't rely on link functions always being present
+	 *
+	 * @return String
+	 */
+	public function getLink() {
+		$controller = Controller::curr();
+		$link = Director::absoluteBaseURL();
+		
+		if($controller->hasMethod('AbsoluteLink')) {
+			$link = $controller->AbsoluteLink();
+		}
+		else if($controller->hasMethod('Link')) {
+			$link .= $controller->Link();
+		}
+		
+		return $link;
 	}
 	
 	/**

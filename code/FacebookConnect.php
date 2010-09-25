@@ -159,6 +159,9 @@ class FacebookConnect extends Extension {
 	 *
 	 * Passes the call through to {@link Facebook::api()} but looks up the
 	 * value in the {@link SS_Cache} first.
+	 * 
+	 * Bases the cache on the users session id so then we don't get incorrect information
+	 * for when users are viewing the cache of different users.
 	 *
 	 * @param String name of value to cache as
 	 * @param String params to pass through to the root api call
@@ -166,7 +169,7 @@ class FacebookConnect extends Extension {
 	 * @return the decoded response from the api
 	 */
 	public function callCached($name, $params) {
-		$cache = SS_Cache::factory(get_class($this));
+		$cache = SS_Cache::factory(get_class($this) . session_id());
 		
 		if(!($result = unserialize($cache->load(get_class($this) . $name)))) {
 			$result = $this->getFacebook()->api($params);

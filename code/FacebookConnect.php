@@ -242,7 +242,7 @@ class FacebookConnect extends Extension {
 					
 					if($groups = self::get_member_groups()) {
 						foreach($groups as $group) {
-							Group::add_to_group_by_code($member, $group);
+							$member->addToGroupByCode($group);
 						}
 					}
 				}

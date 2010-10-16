@@ -8,9 +8,8 @@
  * SilverStripe 2.4 or newer.
 
 ## Overview
-The module provides a **basic** interface for implementing Facebook connect on a website. Specifically its to integrate
-user sign-on and sign up on a SilverStripe website. For example allowing login functionality by Facebook rather than
-the existing security functionality. 
+The module provides a **basic** interface for implementing Facebook connect on a website. Facebook connect allows users to login to your website
+using their Facebook account. This module integrates that single sign-on within the existing SilverStripe member system.
 
 This has been designed to use the Javascript SDK rather than the OAuth interface.
 

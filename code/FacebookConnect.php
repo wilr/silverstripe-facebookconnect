@@ -205,10 +205,15 @@ class FacebookConnect extends Extension {
 					
 					// if logged in and authorized to fb sync details
 					if($member = Member::currentUser()) {
-						$member->updateFacebookFields($result);
+						if(isset($result['email']) && ($result['email'] != $member->Email)) {
+							// member email has changed. Require new login
+							$member->logOut();
+						} else {
+							$member->updateFacebookFields($result);
 						
-						if(self::get_sync_member_details()) {
-							$member->write();
+							if(self::get_sync_member_details()) {
+								$member->write();
+							}
 						}
 					}
 					else {
@@ -221,6 +226,7 @@ class FacebookConnect extends Extension {
 							$member->updateFacebookFields($result);
 							
 							if(self::get_sync_member_details()) {
+								// @todo will need to check the email has not changed as well
 								$member->write();
 							}
 							

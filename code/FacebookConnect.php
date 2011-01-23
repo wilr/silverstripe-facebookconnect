@@ -232,6 +232,16 @@ class FacebookConnect extends Extension {
 							
 							$member->logIn();
 						}
+						else if(isset($result['email']) && ($member = DataObject::get_one(
+								'Member', "\"Email\" = '". Convert::raw2sql($result['email']) ."'"))) {
+							
+							$member->updateFacebookFields($result);
+
+							if(self::create_member()) {
+								$member->write();
+								$member->logIn();
+							}
+						}
 						else {
 							// create a new member
 							$member = new Member();

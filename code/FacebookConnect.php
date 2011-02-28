@@ -202,6 +202,12 @@ class FacebookConnect extends Extension {
 			try {
 				if($uid = $this->getFacebook()->getUser()) {
 					$result = $this->callCached('me', '/me');
+
+					// if email is empty and proxied_email is set instead
+					// write down proxied_email to email
+					if(!stristr($result['email'], '@')){
+						$result['email'] = $result['proxied_email'];
+					}
 					
 					// if logged in and authorized to fb sync details
 					if($member = Member::currentUser()) {
@@ -215,8 +221,7 @@ class FacebookConnect extends Extension {
 								$member->write();
 							}
 						}
-					}
-					else {
+					} else {
 						// member is not currently logged into SilverStripe. Look up for
 						// a member with the UID which matches and log them in or
 						// create a new member
@@ -231,8 +236,7 @@ class FacebookConnect extends Extension {
 							}
 							
 							$member->logIn();
-						}
-						else if(isset($result['email']) && ($member = DataObject::get_one(
+						} else if(isset($result['email']) && ($member = DataObject::get_one(
 								'Member', "\"Email\" = '". Convert::raw2sql($result['email']) ."'"))) {
 							
 							$member->updateFacebookFields($result);
@@ -241,16 +245,9 @@ class FacebookConnect extends Extension {
 								$member->write();
 								$member->logIn();
 							}
-						}
-						else {
+						} else {
 							// create a new member
-							$member = new Member();
-							$member->updateFacebookFields($result);
-							
-							if(self::create_member()) {
-								$member->write();
-								$member->logIn();
-							}
+							$member = $this->owner->addFacebookMember($result, self::create_member());
 						}
 					}
 					
@@ -266,8 +263,7 @@ class FacebookConnect extends Extension {
 				$this->facebookmember = $member;
 				
 			} catch (FacebookApiException $e) { }
-		}
-		else {
+		} else {
 			// no session or cookie so they have logged out of facebook
 			if($logged = Session::get('logged-in-member-via-faceboook')) {
 

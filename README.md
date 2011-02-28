@@ -17,7 +17,7 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
 
  * Loads and setups Facebook Connect for Single Sign on via the Javascript SDK
 
- * Authenticates users visiting the site - if they are logged into Facebook then you can access there information via
+ * Authenticates users visiting the site - if they are logged into Facebook then you can access their information via
    the following controls. You can also optionally set whether to save visitors information as members on your site
    (for example if you need to cache their information)
 	
@@ -26,7 +26,7 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
 
 	<% control CurrentMember %>
 		$FirstName $LastName $Avatar(small)
-	<% end_control %>``
+	<% end_control %>
 	
 If you have disabled the creation of members you can use the Facebook specific member control. This still returns a 
 member object the only difference is that it won't save the information to the database
@@ -97,6 +97,13 @@ the groups to add them to (mailing lists, user permissions etc) by defining the 
 Or as an array
 
 	FacebookConnect::set_member_groups(array('group-1', 'group-2'));
+	
+You can also write your own custom methods for adding and updating the Facebook Member Data (e.g.: if you have inherited from member and also save
+Avatars to database). You can reach this by editing AddFacebookMemberDefault.php and UpdateFacebookMemberDefault.php or writing your own Decorators
+and adding them instead to _config.php (don't forget to uncomment AddFacebookMemberDefault and UpdateFacebookMemberDefault).
+
+	DataObject::add_extension('Member', 'UpdateFacebookMemberDefault');
+	DataObject::add_extension('Controller', 'AddFacebookMemberDefault');
 	
 	
 ### License

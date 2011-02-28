@@ -15,9 +15,11 @@ class FacebookMember extends DataObjectDecorator {
 	public function extraStatics() {
 		return array(
 			'db' => array(
-				'FacebookUID' 		=> 'Varchar(200)', // user ID on facebook
-				'FacebookLink'		=> 'Varchar(200)', // link to their facebook page
-				'FacebookTimezone'	=> 'Varchar(200)', // which timezone they're in
+				'Email'				=> 'Varchar(255)',	// alter Email to be able to save strings up to 255 chars,
+														// according to facbooks proxied email addresses this is mandatory
+				'FacebookUID' 		=> 'Varchar(200)',	// user ID on facebook
+				'FacebookLink'		=> 'Varchar(200)',	// link to their facebook page
+				'FacebookTimezone'	=> 'Varchar(200)',	// which timezone they're in
 			)
 		);
 	}
@@ -60,19 +62,5 @@ class FacebookMember extends DataObjectDecorator {
 		}
 
 		return false;
-	}
-	
-	/**
-	 * Sync the new data from a users Facebook profile to the member database.
-	 *
-	 * @param array
-	 */
-	function updateFacebookFields($result) {
-		$this->owner->Email 	= (isset($result['email'])) ? $result['email'] : "";
-		$this->owner->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";
-		$this->owner->Surname	= (isset($result['last_name'])) ? $result['last_name'] : "";
-		$this->owner->Link		= (isset($result['link'])) ? $result['link'] : "";
-		$this->owner->FacebookUID	= (isset($result['id'])) ? $result['id'] : "";
-		$this->owner->FacebookTimezone = (isset($result['timezone'])) ? $result['timezone'] : "";
 	}
 }

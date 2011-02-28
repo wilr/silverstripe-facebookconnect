@@ -11,7 +11,7 @@
  * @package facebookconnect
  */
 
-class UpdateFacebookMemberDefault extends Extension {
+class AddFacebookMemberDefault extends Extension {
 	
 	/**
 	 * create a new User based on the Facebook Member.

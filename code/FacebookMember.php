@@ -63,4 +63,44 @@ class FacebookMember extends DataObjectDecorator {
 
 		return false;
 	}
+        
+        /**
+	 * create a new User based on the Facebook Member.
+	 *
+	 * @param array
+	 * @param bool
+	 * @return DataObject
+	 */
+	function addFacebookMember($result, $create_member){
+
+		$member = new Member();
+		$member->updateFacebookFields($result);
+
+		if($create_member) {
+			$member->write();
+			$member->logIn();
+		}
+
+		// the returnvalue must be an instance of Member.
+		// whether it's an inherited instance doesn't matter.
+		return $member;
+	}
+
+	/**
+	 * Sync the new data from a users Facebook profile to the member database.
+	 *
+	 * @param array
+	 */
+	function updateFacebookFields($result) {
+		// only Update Email if ist already set to a correct Email,
+		// while $result['email'] is still a proxied_email
+		if(!Email::validEmailAddress($this->owner->Email) || (!stristr($result['email'], '@facebook.com') && !DataObject::get_one('Member', "\"Email\" = '". Convert::raw2sql($result['email']) ."'"))){
+			$this->owner->Email 	= (isset($result['email'])) ? $result['email'] : "";
+		}
+		$this->owner->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";
+		$this->owner->Surname	= (isset($result['last_name'])) ? $result['last_name'] : "";
+		$this->owner->Link		= (isset($result['link'])) ? $result['link'] : "";
+		$this->owner->FacebookUID	= (isset($result['id'])) ? $result['id'] : "";
+		$this->owner->FacebookTimezone = (isset($result['timezone'])) ? $result['timezone'] : "";
+	}
 }

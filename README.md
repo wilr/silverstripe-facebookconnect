@@ -99,11 +99,10 @@ Or as an array
 	FacebookConnect::set_member_groups(array('group-1', 'group-2'));
 	
 You can also write your own custom methods for adding and updating the Facebook Member Data (e.g.: if you have inherited from member and also save
-Avatars to database). You can reach this by editing AddFacebookMemberDefault.php and UpdateFacebookMemberDefault.php or writing your own Decorators
-and adding them instead to _config.php (don't forget to uncomment AddFacebookMemberDefault and UpdateFacebookMemberDefault).
+Avatars to database). You can reach this by extending FacebookMember (e.g. ExtendedFacebookMember) and adding it instead of original FacebookMember
+to Member.
 
-	DataObject::add_extension('Member', 'UpdateFacebookMemberDefault');
-	DataObject::add_extension('Controller', 'AddFacebookMemberDefault');
+	DataObject::add_extension('Member', 'ExtendedFacebookMember');
 	
 	
 ### License

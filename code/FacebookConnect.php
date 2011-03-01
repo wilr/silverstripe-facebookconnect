@@ -247,7 +247,7 @@ class FacebookConnect extends Extension {
 							}
 						} else {
 							// create a new member
-							$member = $this->owner->addFacebookMember($result, self::create_member());
+							$member = singleton('Member')->addFacebookMember($result, self::create_member());
 						}
 					}
 					

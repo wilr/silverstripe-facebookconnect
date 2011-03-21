@@ -72,7 +72,13 @@ class FacebookConnect extends Extension {
 	 * @var String ID for your App
 	 */	
 	private static $app_id = "";
-	
+
+	/**
+	 * @see FacebookConnect::set_lang($lang);
+	 *
+	 * @var Locale for your App
+	 */
+	private static $lang = "en_US";
 	
 	public $facebookmember = false;
 	
@@ -132,6 +138,14 @@ class FacebookConnect extends Extension {
 		return self::$api_secret;
 	}
 	
+	public static function set_lang($lang) {
+		self::$lang = $lang;
+	}
+
+	public static function get_lang() {
+		return self::$lang;
+	}
+
 	/**
 	 * Return the Facebook API class wrapped in a {@link SS_Cache} for
 	 * performance. Creates a new object if no connection has been implemented
@@ -274,11 +288,13 @@ class FacebookConnect extends Extension {
 			}
 		}
 		
-		// add the javascript requirements 
+		// add the javascript requirements
+		$lang = self::get_lang();
+
 		Requirements::customScript(<<<JS
 (function() {
 	var e = document.createElement('script');
-	e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+	e.src = document.location.protocol + '//connect.facebook.net/{$lang}/all.js';
 	e.async = true;
 	
 	var root = document.createElement('div');

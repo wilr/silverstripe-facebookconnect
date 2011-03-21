@@ -59,6 +59,7 @@ member object the only difference is that it won't save the information to the d
 	FacebookConnect::set_api_key('api-key');
 	FacebookConnect::set_api_secret('api-secret');
 	FacebookConnect::set_app_id('api-id');
+	FacebookConnect::set_lang('en_US');
 	
 You need to add the fb: namespace to your Page.ss file. For example your <html> tag at the top should look like
 

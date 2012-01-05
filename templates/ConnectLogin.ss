@@ -1,1 +1,1 @@
-<fb:login-button perms="$Top.FacebookPermissions"></fb:login-button>
+<fb:login-button scope="$Top.FacebookPermissions"></fb:login-button>

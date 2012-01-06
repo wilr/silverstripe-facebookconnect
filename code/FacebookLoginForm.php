@@ -24,7 +24,7 @@ class FacebookLoginForm extends MemberLoginForm {
 		}
 		else {
 			$fields = new FieldSet(
-				new LiteralField('FacebookLoginIn', "<fb:login-button perms='". $controller->getFacebookPermissions() ."'></fb:login-button>")
+				new LiteralField('FacebookLoginIn', "<fb:login-button scope='". $controller->getFacebookPermissions() ."'></fb:login-button>")
 			);
 			
 			$actions = new FieldSet(

@@ -56,10 +56,11 @@ class FacebookConnect extends Extension {
 	private static $sync_member_details = true;
 	
 	/**
-	 * @see FacebookConnect::set_api_key($key);
-	 * @var String API key for your Facebook App
-	 */
-	private static $api_key = "";
+	 * @see FacebookConnect::set_app_id($key);
+	 *
+	 * @var String ID for your App
+	 */	
+	private static $app_id = "";
 
 	/**
 	 * @see FacebookConnect::set_api_secret($key);
@@ -67,13 +68,6 @@ class FacebookConnect extends Extension {
 	 * @var String API Secret for your Facebook App
 	 */	
 	private static $api_secret = "";
-	
-	/**
-	 * @see FacebookConnect::set_app_id($key);
-	 *
-	 * @var String ID for your App
-	 */	
-	private static $app_id = "";
 
 	/**
 	 * @see FacebookConnect::set_lang($lang);
@@ -120,20 +114,16 @@ class FacebookConnect extends Extension {
 		return self::$permissions;
 	}
 	
-	public static function set_api_key($key) {
-		self::$api_key = $key;
-	}
-	
-	public static function set_api_secret($secret) {
-		self::$api_secret = $secret;
-	}
-	
 	public static function set_app_id($id) {
 		self::$app_id = $id;
 	}
 	
 	public static function get_app_id() {
 		return self::$app_id;
+	}
+	
+	public static function set_api_secret($secret) {
+		self::$api_secret = $secret;
 	}
 	
 	public static function get_api_secret() {

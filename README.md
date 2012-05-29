@@ -75,25 +75,25 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
 
 Once you have done that you should be able to use the includes provided in this module.
 
-    ```
-	<% if CurrentFacebookMember %>
-		<p>Hi $CurrentFacebookMember.FirstName</p>
-		<% include ConnectLogout %>
-	<% else %>
-		<% include ConnectLogin %>
-	<% end_if %>
-    ```
+```
+<% if CurrentFacebookMember %>
+	<p>Hi $CurrentFacebookMember.FirstName</p>
+	<% include ConnectLogout %>
+<% else %>
+	<% include ConnectLogin %>
+<% end_if %>
+```
 
 You can also access the Facebook member information in your PHP code. The Facebook API connection and current member are
 cached on the controller object. So for example if this is in your Page_Controller class
 
-    ```php
-	// returns the current facebook member (wrapped in a SS Member Object)	
-	$this->getCurrentFacebookMember();
-	
-	// returns the API connection which you can use to write your own query
-	$this->getFacebook(); 
-    ```
+```php
+// returns the current facebook member (wrapped in a SS Member Object)	
+$this->getCurrentFacebookMember();
+
+// returns the API connection which you can use to write your own query
+$this->getFacebook(); 
+```
 	
 ### Configuration
 

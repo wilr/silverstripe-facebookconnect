@@ -30,8 +30,8 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
 	<% end_control %>
 	```
 
-If you have disabled the creation of members you can use the Facebook specific member control. This still returns a 
-member object the only difference is that it won't save the information to the database
+   If you have disabled the creation of members you can use the Facebook specific member control. This still returns a 
+   member object the only difference is that it won't save the information to the database
 
     ```
 	<% control CurrentFacebookMember %>
@@ -67,7 +67,7 @@ member object the only difference is that it won't save the information to the d
 	FacebookConnect::set_lang('en_US');
     ```
 	
-You need to add the fb: namespace to your Page.ss file. For example your <html> tag at the top should look like
+  * You need to add the fb: namespace to your Page.ss file. For example your <html> tag at the top should look like
 
     ```html
 	<html lang="en" xmlns:fb="http://www.facebook.com/2008/fbml">

@@ -34,7 +34,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals($facebook->getAppId(), self::APP_ID,
                         'Expect the App ID to be set.');
-    $this->assertEquals($facebook->getApiSecret(), self::SECRET,
+    $this->assertEquals($facebook->getAppSecret(), self::SECRET,
                         'Expect the API secret to be set.');
   }
 
@@ -46,8 +46,11 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals($facebook->getAppId(), self::APP_ID,
                         'Expect the App ID to be set.');
-    $this->assertEquals($facebook->getApiSecret(), self::SECRET,
+    $this->assertEquals($facebook->getAppSecret(), self::SECRET,
                         'Expect the API secret to be set.');
+    $this->assertTrue($facebook->getFileUploadSupport(),
+                      'Expect file upload support to be on.');
+    // alias (depricated) for getFileUploadSupport -- test until removed
     $this->assertTrue($facebook->useFileUploadSupport(),
                       'Expect file upload support to be on.');
   }
@@ -72,6 +75,16 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
                         'Expect the API secret to be dummy.');
   }
 
+  public function testSetAPPSecret() {
+    $facebook = new TransientFacebook(array(
+      'appId'  => self::APP_ID,
+      'secret' => self::SECRET,
+    ));
+    $facebook->setAppSecret('dummy');
+    $this->assertEquals($facebook->getAppSecret(), 'dummy',
+                        'Expect the API secret to be dummy.');
+  }
+
   public function testSetAccessToken() {
     $facebook = new TransientFacebook(array(
       'appId'  => self::APP_ID,
@@ -88,9 +101,15 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
       'appId'  => self::APP_ID,
       'secret' => self::SECRET,
     ));
+    $this->assertFalse($facebook->getFileUploadSupport(),
+                       'Expect file upload support to be off.');
+    // alias for getFileUploadSupport (depricated), testing until removed
     $this->assertFalse($facebook->useFileUploadSupport(),
                        'Expect file upload support to be off.');
     $facebook->setFileUploadSupport(true);
+    $this->assertTrue($facebook->getFileUploadSupport(),
+                      'Expect file upload support to be on.');
+    // alias for getFileUploadSupport (depricated), testing until removed
     $this->assertTrue($facebook->useFileUploadSupport(),
                       'Expect file upload support to be on.');
   }
@@ -408,7 +427,7 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
     } catch(FacebookApiException $e) {
       // ProfileDelete means the server understood the DELETE
       $msg =
-        'OAuthException: A user access token is required to request this resource.';
+        'OAuthException: (#200) User cannot access this application';
       $this->assertEquals($msg, (string) $e,
                           'Expect the invalid session message.');
     }
@@ -666,19 +685,20 @@ class PHPSDKTestCase extends PHPUnit_Framework_TestCase {
       'secret' => self::SECRET,
     ));
 
-    $proper_exception_thrown = false;
     try {
       $response = $facebook->api('/' . self::APP_ID . '/insights');
       $this->fail('Desktop applications need a user token for insights.');
     } catch (FacebookApiException $e) {
-      $proper_exception_thrown =
-        strpos($e->getMessage(),
-               'Requires session when calling from a desktop app') !== false;
-    } catch (Exception $e) {}
-
-    $this->assertTrue($proper_exception_thrown,
-                      'Incorrect exception type thrown when trying to gain '.
-                      'insights for desktop app without a user access token.');
+      // this test is failing as the graph call is returning the wrong
+      // error message
+      $this->assertTrue(strpos($e->getMessage(),
+        'Requires session when calling from a desktop app') !== false,
+        'Incorrect exception type thrown when trying to gain ' .
+        'insights for desktop app without a user access token.');
+    } catch (Exception $e) {
+      $this->fail('Incorrect exception type thrown when trying to gain ' .
+        'insights for desktop app without a user access token.');
+    }
   }
 
   public function testBase64UrlEncode() {

@@ -10,7 +10,6 @@
  * @package facebookconnect
  */
 
-class FacebookMember extends DataObjectDecorator {
 	
 	public function extraStatics() {
 		return array(

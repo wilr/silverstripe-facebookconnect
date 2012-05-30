@@ -1,6 +1,6 @@
 <?php
 
-require_once("../facebookconnect/thirdparty/facebook-php-sdk/src/facebook.php");
+require_once(Director::baseFolder()."/silverstripe-facebookconnect/thirdparty/facebook-php-sdk/src/facebook.php");
 
 /**
  * Main controller class to handle Facebook Connect implementations. Extends the built in

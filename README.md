@@ -58,7 +58,7 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
 
   * To setup Facebook connect your first need to download this and put it in your SilverStripe sites root folder. 
   * You need to register your website / application at http://developers.facebook.com/setup
-  * Once you have registered your app then set the following in your mysite/_config.php file. Replace the values with the ones
+  * Once you have registered your app set the following in your mysite/_config.php file. Replace the values with the ones
     you should get after registering your app
 
     ```php
@@ -67,10 +67,13 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
 	FacebookConnect::set_lang('en_US');
     ```
 	
-  * You need to add the fb: namespace to your Page.ss file. For example your <html> tag at the top should look like
+  * Update the database by running `/dev/build` to add the additional fields to the `Member` table
 
-    ```html
-	<html lang="en" xmlns:fb="http://www.facebook.com/2008/fbml">
+  * Include the `ConnectInit.ss` template in the `<body>` part of every site you wish to call a Facebook function. E.g. on `FrontendPage.ss`
+
+    ```
+    <body>
+        <% include ConnectInit %>
     ```
 
 Once you have done that you should be able to use the includes provided in this module.

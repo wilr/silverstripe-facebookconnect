@@ -10,6 +10,7 @@
  * @package facebookconnect
  */
 
+class FacebookMember extends DataExtension {
 	
 	public function extraStatics() {
 		return array(

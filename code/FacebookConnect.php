@@ -275,45 +275,6 @@ class FacebookConnect extends Extension {
 				if($member) $member->logOut();
 			}
 		}
-		
-		// add the javascript requirements
-		$lang = self::get_lang();
-
-		Requirements::customScript(<<<JS
-(function() {
-	var e = document.createElement('script');
-	e.src = document.location.protocol + '//connect.facebook.net/{$lang}/all.js';
-	e.async = true;
-	
-	var root = document.createElement('div');
-	root.setAttribute('id', 'fb-root');
-
-	document.body.appendChild(root);
-	
-	document.getElementById('fb-root').appendChild(e);
-}());			
-JS
-);
-		$appID = self::get_app_id();
-		
-		Requirements::customScript(<<<JS
-window.fbAsyncInit = function() {
-    FB.init({
-		appId   : '$appID',
-		oauth  : true,
-		cookie  : true,
-		xfbml   : true
-    });
-
-	FB.Event.subscribe('auth.login', function(response) {
-		window.location.reload();
-	});
-	FB.Event.subscribe('auth.logout', function(response) {
-		window.location.reload();
-	});
-};
-JS
-);
 	}
 	
 	/**
@@ -387,6 +348,26 @@ JS
 		}	
 			
 		return implode(',', $permissions);
+ 	}
+	
+	/**
+	 * App Id
+	 *
+	 * @return String
+	 */
+	public function getFacebookAppId() {
+		
+		return self::get_app_id();
+ 	}
+	
+	/**
+	 * Language
+	 *
+	 * @return String
+	 */
+	public function getFacebookLanguage() {
+		
+		return self::get_lang();
  	}
 
 }

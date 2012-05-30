@@ -10,7 +10,7 @@
  * @package facebookconnect
  */
 
-class FacebookMember extends DataObjectDecorator {
+class FacebookMember extends DataExtension {
 	
 	public function extraStatics() {
 		return array(
@@ -43,7 +43,7 @@ class FacebookMember extends DataObjectDecorator {
 
 				// https://github.com/facebook/php-sdk/issues/507
 				header("Location: ".$controller->getFacebook()->getLogoutUrl(array(
-					'next' => Director::absoluteBaseUrl()
+					'next' => Director::absoluteBaseUrl()."?updatecache=1"
 				)));
 				
 				die();

@@ -52,12 +52,6 @@ class FacebookConnect extends Extension {
 	 * @var bool
 	 */
 	private static $sync_member_details = true;
-	
-	/**
-	 * @see FacebookConnect::set_api_key($key);
-	 * @var String API key for your Facebook App
-	 */
-	private static $api_key = "";
 
 	/**
 	 * @see FacebookConnect::set_api_secret($key);
@@ -65,12 +59,12 @@ class FacebookConnect extends Extension {
 	 * @var String API Secret for your Facebook App
 	 */	
 	private static $api_secret = "";
-	
+
 	/**
 	 * @see FacebookConnect::set_app_id($key);
 	 *
 	 * @var String ID for your App
-	 */	
+	 */
 	private static $app_id = "";
 
 	/**
@@ -118,20 +112,16 @@ class FacebookConnect extends Extension {
 		return self::$permissions;
 	}
 	
-	public static function set_api_key($key) {
-		self::$api_key = $key;
-	}
-	
-	public static function set_api_secret($secret) {
-		self::$api_secret = $secret;
-	}
-	
 	public static function set_app_id($id) {
 		self::$app_id = $id;
 	}
 	
 	public static function get_app_id() {
 		return self::$app_id;
+	}
+	
+	public static function set_api_secret($secret) {
+		self::$api_secret = $secret;
 	}
 	
 	public static function get_api_secret() {
@@ -283,45 +273,6 @@ class FacebookConnect extends Extension {
 				if($member) $member->logOut();
 			}
 		}
-		
-		// add the javascript requirements
-		$lang = self::get_lang();
-
-		Requirements::customScript(<<<JS
-(function() {
-	var e = document.createElement('script');
-	e.src = document.location.protocol + '//connect.facebook.net/{$lang}/all.js';
-	e.async = true;
-	
-	var root = document.createElement('div');
-	root.setAttribute('id', 'fb-root');
-
-	document.body.appendChild(root);
-	
-	document.getElementById('fb-root').appendChild(e);
-}());			
-JS
-);
-		$appID = self::get_app_id();
-		
-		Requirements::customScript(<<<JS
-window.fbAsyncInit = function() {
-    FB.init({
-		appId   : '$appID',
-		oauth  : true,
-		cookie  : true,
-		xfbml   : true
-    });
-
-	FB.Event.subscribe('auth.login', function(response) {
-		window.location.reload();
-	});
-	FB.Event.subscribe('auth.logout', function(response) {
-		window.location.reload();
-	});
-};
-JS
-);
 	}
 	
 	/**
@@ -346,7 +297,7 @@ JS
 	public function getFacebookLogoutLink() {
 		$link = $this->getLink();
 		
-		return $this->getFacebook()->getLogoutUrl(array('next' => Controller::join_links($link, '?updatecache=1')));
+		return $this->getFacebook()->getLogoutUrl(array('next' => Controller::join_links($link, '?updatecache=1&flush=1')));
 	}
 
 	/**
@@ -357,7 +308,7 @@ JS
 	public function getFacebookLoginLink() {
 		$link = $this->getLink();
 		
-		return $this->getFacebook()->getLoginUrl(array('next' => Controller::join_links($link, '?updatecache=1')));
+		return $this->getFacebook()->getLoginUrl(array('next' => Controller::join_links($link, '?updatecache=1&flush=1')));
 	}
 	
 	/**
@@ -395,6 +346,26 @@ JS
 		}	
 			
 		return implode(',', $permissions);
+ 	}
+	
+	/**
+	 * App Id
+	 *
+	 * @return String
+	 */
+	public function getFacebookAppId() {
+		
+		return self::get_app_id();
+ 	}
+	
+	/**
+	 * Language
+	 *
+	 * @return String
+	 */
+	public function getFacebookLanguage() {
+		
+		return self::get_lang();
  	}
 
 }

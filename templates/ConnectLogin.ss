@@ -1,1 +1,1 @@
-<fb:login-button scope="$Top.FacebookPermissions"></fb:login-button>
+<div class="fb-login-button" scope="$Top.FacebookPermissions">Login with Facebook</div>

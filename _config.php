@@ -3,6 +3,8 @@
 // configuration for facebook connect. You should not edit any of these
 // values and instead override from the mysite/_config file
 
+require_once(dirname(__FILE__) . "/thirdparty/facebook-php-sdk/src/facebook.php");
+
 // adds an extension hook to member
 DataObject::add_extension('Member', 'FacebookMember');
 

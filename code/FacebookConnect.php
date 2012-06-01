@@ -1,7 +1,5 @@
 <?php
 
-require_once("../facebookconnect/thirdparty/facebook-php-sdk/src/facebook.php");
-
 /**
  * Main controller class to handle Facebook Connect implementations. Extends the built in
  * SilverStripe controller to add addition template functionality.

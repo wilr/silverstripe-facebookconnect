@@ -10,21 +10,16 @@
  * @package facebookconnect
  */
 
-class FacebookMember extends DataObjectDecorator {
+class FacebookMember extends DataExtension {
 	
-	public function extraStatics() {
-		return array(
-			'db' => array(
-				'Email'				=> 'Varchar(255)',	// alter Email to be able to save strings up to 255 chars,
-														// according to facbooks proxied email addresses this is mandatory
-				'FacebookUID' 		=> 'Varchar(200)',	// user ID on facebook
-				'FacebookLink'		=> 'Varchar(200)',	// link to their facebook page
-				'FacebookTimezone'	=> 'Varchar(200)',	// which timezone they're in
-			)
-		);
-	}
+	static $db = array(
+		'Email'				=> 'Varchar(255)',
+		'FacebookUID' 		=> 'Varchar(200)',
+		'FacebookLink'		=> 'Varchar(200)',
+		'FacebookTimezone'	=> 'Varchar(200)'
+	);
 	
-	function updateCMSFields(&$fields) {
+	function updateCMSFields(FieldList $fields) {
 		$fields->makeFieldReadonly('Email');
 		$fields->makeFieldReadonly('FacebookUID');
 		$fields->makeFieldReadonly('FacebookLink');

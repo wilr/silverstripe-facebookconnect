@@ -6,7 +6,7 @@
         status     : true, 
         cookie     : true,
         xfbml      : true,
-        oauth      : true,
+        oauth      : true
       });
 
       FB.Event.subscribe('auth.login', function() {

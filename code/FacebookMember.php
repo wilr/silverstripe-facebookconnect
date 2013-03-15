@@ -32,7 +32,7 @@ class FacebookMember extends DataExtension {
 	function memberLoggedOut() {
 		$controller = Controller::curr();
 		
-		if(!$controller->redirected_to()) {
+		if(!$controller->redirectedTo()) {
 			if($controller->getCurrentFacebookMember()) {
 				$token = $controller->getFacebook()->getAccessToken();
 

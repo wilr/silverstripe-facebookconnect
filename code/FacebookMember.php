@@ -32,7 +32,7 @@ class FacebookMember extends DataExtension {
 	function memberLoggedOut() {
 		$controller = Controller::curr();
 		
-		if(!Director::redirected_to()) {
+		if(!$this->controller->redirected_to()) {
 			if($controller->getCurrentFacebookMember()) {
 				$token = $controller->getFacebook()->getAccessToken();
 
@@ -99,7 +99,7 @@ class FacebookMember extends DataExtension {
 		}
 		$this->owner->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";
 		$this->owner->Surname	= (isset($result['last_name'])) ? $result['last_name'] : "";
-		$this->owner->Link		= (isset($result['link'])) ? $result['link'] : "";
+		$this->owner->FacebookLink	= (isset($result['link'])) ? $result['link'] : "";
 		$this->owner->FacebookUID	= (isset($result['id'])) ? $result['id'] : "";
 		$this->owner->FacebookTimezone = (isset($result['timezone'])) ? $result['timezone'] : "";
 	}

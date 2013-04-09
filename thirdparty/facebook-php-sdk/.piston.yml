@@ -1,8 +1,0 @@
---- 
-format: 1
-handler: 
-  commit: dafef11536c46a3b99fe5d3be06c226e9f86fe6b
-  branch: master
-lock: false
-repository_class: Piston::Git::Repository
-repository_url: git://github.com/facebook/php-sdk.git

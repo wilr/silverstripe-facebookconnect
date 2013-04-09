@@ -1,6 +1,6 @@
 {
     "name": "wilr/silverstripe-facebookconnect",
-    "description": "Integration of Facebook Connect into SilverStripeK",
+    "description": "Integration of Facebook Connect into SilverStripe",
     "keywords": ["facebook", "silverstripe"],
     "type": "silverstripe-module",
     "target-dir": "facebookconnect",

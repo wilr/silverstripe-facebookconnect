@@ -12,14 +12,14 @@
 
 class FacebookMember extends DataExtension {
 	
-	static $db = array(
-		'Email'				=> 'Varchar(255)',
-		'FacebookUID' 		=> 'Varchar(200)',
-		'FacebookLink'		=> 'Varchar(200)',
-		'FacebookTimezone'	=> 'Varchar(200)'
+	private static $db = array(
+		'Email'				=> 'Varchar(255)',	// alter Email to be able to save strings up to 255 chars,
+		'FacebookUID' 		=> 'Varchar(200)',	// user ID on facebook
+		'FacebookLink'		=> 'Varchar(200)',	// link to their facebook page
+		'FacebookTimezone'	=> 'Varchar(200)',	// which timezone they're in
 	);
 	
-	function updateCMSFields(FieldList $fields) {
+	public function updateCMSFields(FieldList $fields) {
 		$fields->makeFieldReadonly('Email');
 		$fields->makeFieldReadonly('FacebookUID');
 		$fields->makeFieldReadonly('FacebookLink');
@@ -29,7 +29,7 @@ class FacebookMember extends DataExtension {
 	/**
 	 * After logging out on the security logout panel log out of Facebook
 	 */
-	function memberLoggedOut() {
+	public function memberLoggedOut() {
 		$controller = Controller::curr();
 		
 		if(!$controller->redirectedTo()) {
@@ -49,9 +49,9 @@ class FacebookMember extends DataExtension {
 	/**
 	 * Takes one of 'square' (50x50), 'small' (50xXX) or 'large' (200xXX)
 	 *
-	 * @return String
+	 * @return string
 	 */
-	function getAvatar($type = "square") {
+	public function getAvatar($type = "square") {
 		$controller = Controller::curr();
 
 		if($controller && ($member = $controller->getCurrentFacebookMember())) {
@@ -60,19 +60,17 @@ class FacebookMember extends DataExtension {
 				 $member->FacebookUID, $type
 			);
 		}
-
-		return false;
 	}
         
-        /**
-	 * create a new User based on the Facebook Member.
+    /**
+	 * Create a new User based on the Facebook Member.
 	 *
 	 * @param array
 	 * @param bool
+	 *
 	 * @return DataObject
 	 */
-	function addFacebookMember($result, $create_member){
-
+	public function addFacebookMember($result, $create_member) {
 		$member = new Member();
 		$member->updateFacebookFields($result);
 
@@ -81,8 +79,10 @@ class FacebookMember extends DataExtension {
 			$member->logIn();
 		}
 
-		// the returnvalue must be an instance of Member.
+		// the return value must be an instance of Member.
 		// whether it's an inherited instance doesn't matter.
+		$this->owner->extend('onAddFacebookMember', $result);
+
 		return $member;
 	}
 
@@ -91,16 +91,19 @@ class FacebookMember extends DataExtension {
 	 *
 	 * @param array
 	 */
-	function updateFacebookFields($result) {
+	public function updateFacebookFields($result) {
 		// only Update Email if ist already set to a correct Email,
 		// while $result['email'] is still a proxied_email
 		if(!Email::validEmailAddress($this->owner->Email) || (!stristr($result['email'], '@facebook.com') && !DataObject::get_one('Member', "\"Email\" = '". Convert::raw2sql($result['email']) ."'"))){
 			$this->owner->Email 	= (isset($result['email'])) ? $result['email'] : "";
 		}
+
 		$this->owner->FirstName	= (isset($result['first_name'])) ? $result['first_name'] : "";
 		$this->owner->Surname	= (isset($result['last_name'])) ? $result['last_name'] : "";
 		$this->owner->FacebookLink	= (isset($result['link'])) ? $result['link'] : "";
 		$this->owner->FacebookUID	= (isset($result['id'])) ? $result['id'] : "";
 		$this->owner->FacebookTimezone = (isset($result['timezone'])) ? $result['timezone'] : "";
+
+		$this->owner->extend('onUpdateFacebookFields', $result);
 	}
 }

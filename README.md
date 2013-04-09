@@ -5,7 +5,11 @@
    <will (at) fullscreen (dot) io>
 	
 ## Requirements
+<<<<<<< HEAD
  * SilverStripe 3.0 
+=======
+ * SilverStripe 3.0
+>>>>>>> FIX: 3.0 update, add composer
 
 ## Overview
 
@@ -29,9 +33,9 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
    access the Facebook's member information by using:
 
     ```
-	<% control CurrentMember %>
+	<% with CurrentMember %>
 		$FirstName $LastName $Avatar(small)
-	<% end_control %>
+	<% end_with %>
 	```
 
    If you have disabled the creation of members you can use the Facebook specific 
@@ -39,9 +43,9 @@ This has been designed to use the Javascript SDK rather than the OAuth interface
    it won't save the information to the database
 
     ```
-	<% control CurrentFacebookMember %>
+	<% with CurrentFacebookMember %>
 		$FirstName $LastName $Avatar(small)
-	<% end_control %>
+	<% end_with %>
     ```
 	
 ### What it does not provide (yet)

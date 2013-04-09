@@ -1,0 +1,16 @@
+{
+    "name": "wilr/silverstripe-facebookconnect",
+    "description": "Integration of Facebook Connect into SilverStripeK",
+    "keywords": ["facebook", "silverstripe"],
+    "type": "silverstripe-module",
+    "target-dir": "facebookconnect",
+    "homepage": "https://github.com/wilr/silverstripe-facebookconnect",
+    "license": "BSD",
+    "authors": [{
+        "name": "Will Rossiter",
+        "email": "will@fullscreen.io"
+    }],
+    "require": {
+        "silverstripe/framework": ">=3.0"
+    },
+}

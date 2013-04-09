@@ -3,16 +3,13 @@
 /**
  * Return a Facebook Login Form for the website.
  *
- * @todo If Javascript is not enabled then it should default back to the standard link
- *
  * @package facebookconnect
  */
 class FacebookLoginForm extends MemberLoginForm {
 	
 	protected $authenticator_class = 'FacebookAuthenticator';
 	
-	function __construct($controller, $name, $fields = null, $actions = null, $checkCurrentUser = true) {
-
+	public function __construct($controller, $name, $fields = null, $actions = null, $checkCurrentUser = true) {
 		if($checkCurrentUser && Member::currentUser() && Member::logged_in_session_exists()) {
 			$fields = new FieldList(
 				new HiddenField("AuthenticationMethod", null, $this->authenticator_class, $this)

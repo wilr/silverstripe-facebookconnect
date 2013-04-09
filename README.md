@@ -5,11 +5,7 @@
    <will (at) fullscreen (dot) io>
 	
 ## Requirements
-<<<<<<< HEAD
- * SilverStripe 3.0 
-=======
  * SilverStripe 3.0
->>>>>>> FIX: 3.0 update, add composer
 
 ## Overview
 

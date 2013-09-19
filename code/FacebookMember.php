@@ -20,7 +20,6 @@ class FacebookMember extends DataExtension {
 	);
 	
 	public function updateCMSFields(FieldList $fields) {
-		$fields->makeFieldReadonly('Email');
 		$fields->makeFieldReadonly('FacebookUID');
 		$fields->makeFieldReadonly('FacebookLink');
 		$fields->makeFieldReadonly('FacebookTimezone');
@@ -92,7 +91,7 @@ class FacebookMember extends DataExtension {
 	 * @param array
 	 */
 	public function updateFacebookFields($result) {
-		// only Update Email if ist already set to a correct Email,
+		// Only update email if isnt already set to a correct email,
 		// while $result['email'] is still a proxied_email
 		if(!Email::validEmailAddress($this->owner->Email) || (!stristr($result['email'], '@facebook.com') && !DataObject::get_one('Member', "\"Email\" = '". Convert::raw2sql($result['email']) ."'"))){
 			$this->owner->Email 	= (isset($result['email'])) ? $result['email'] : "";

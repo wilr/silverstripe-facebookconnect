@@ -6,13 +6,13 @@
 require_once(dirname(__FILE__) . "/thirdparty/facebook-php-sdk/src/facebook.php");
 
 // adds an extension hook to member
-Member::add_extension('FacebookMember');
+Object::add_extension('Member', 'FacebookMember');
 
 // adds the authenticator to the built in login form
 Authenticator::register('FacebookAuthenticator');
 
 // add the facebook controller
-Controller::add_extension('FacebookConnect');
+Object::add_extension('Controller', 'FacebookConnect');
 
 // don't forget to add Facebook App Keys to mysite/_config.php
 // FacebookConnect::set_app_id('your_id');

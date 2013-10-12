@@ -202,6 +202,13 @@ class FacebookConnect extends Extension {
 		if(!isset($_GET['updatecache']) && $user) {
 			try {
 				$result = $this->callCached('me', '/me');
+        		        // Ensure we have an email field. If this is null, construct it from the username.
+				if (is_null($result['email']) || $result['email'] == '') {
+					$result['email'] = sprintf(
+						'%s@facebook.com',
+						$result['username']
+					);
+				}
 
 				// if email is empty and proxied_email is set instead
 				// write down proxied_email to email

@@ -10,7 +10,7 @@
  * @package facebookconnect
  */
 
-class FacebookMember extends DataExtension {
+class FacebookMemberExtension extends DataExtension {
 	
 	private static $db = array(
 		'Email'				=> 'Varchar(255)',	// alter Email to be able to save strings up to 255 chars,

@@ -1,0 +1,14 @@
+---
+name: facebookconnect
+---
+Member:
+  extensions:
+    - FacebookMemberExtension
+
+Controller:
+  extensions:
+    - FacebookConnectExtension
+
+Authenticator::
+  authenticators:
+    - FacebookAuthenticator

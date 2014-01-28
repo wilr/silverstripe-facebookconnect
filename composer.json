@@ -10,7 +10,8 @@
         "email": "will@fullscreen.io"
     }],
     "require": {
-        "silverstripe/framework": ">=3.1"
+        "silverstripe/framework": ">=3.1",
+        "facebook/php-sdk": "5c5a3e80af30ea00e7682e94b31112c505051f50"
     },
     "extra": {
         "installer-name": "facebookconnect"

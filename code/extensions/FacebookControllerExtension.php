@@ -213,7 +213,7 @@ class FacebookConnectExtension extends Extension {
 		$link = $this->getLink();
 		
 		return $this->getFacebook()->getLogoutUrl(array(
-			'next' => Controller::join_links($link, '?updatecache=1&flush=1')
+			'next' => Controller::join_links($link, '?updatecache=1')
 		));
 	}
 
@@ -224,7 +224,7 @@ class FacebookConnectExtension extends Extension {
 		$link = $this->getLink();
 		
 		return $this->getFacebook()->getLoginUrl(array(
-			'next' => Controller::join_links($link, '?updatecache=1&flush=1')
+			'next' => Controller::join_links($link, '?updatecache=1')
 		));
 	}
 	

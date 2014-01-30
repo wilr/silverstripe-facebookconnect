@@ -34,14 +34,7 @@ class FacebookMemberExtension extends DataExtension {
 		
 		if(!$controller->redirectedTo()) {
 			if($controller->getCurrentFacebookMember()) {
-				$token = $controller->getFacebook()->getAccessToken();
-
-				// https://github.com/facebook/php-sdk/issues/507
-				header("Location: ".$controller->getFacebook()->getLogoutUrl(array(
-					'next' => Director::absoluteBaseUrl()."?updatecache=1&flush=1"
-				)));
-				
-				die();
+				$controller->getFacebook()->destroySession();
 			}
 		}
 	}

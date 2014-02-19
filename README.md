@@ -136,7 +136,7 @@ A list of group codes to add the user. For instance if you want every member who
 joins through facebook to be added to a group `Facebook Members` set the 
 following:
 
-  FacebookConnectExtensions:
+  FacebookControllerExtension:
     member_groups:
       - facebook_members
 

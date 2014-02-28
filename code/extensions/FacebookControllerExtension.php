@@ -101,11 +101,12 @@ class FacebookConnectExtension extends Extension {
 	 */
 	public function callCached($name, $params) {
 		$cache = SS_Cache::factory(get_class($this) . session_id());
-		
-		if(!($result = unserialize($cache->load(get_class($this) . $name)))) {
+		$key = rtrim(base64_encode(get_class($this) . $name), '=');
+
+		if(!($result = unserialize($cache->load($key)))) {
 			$result = $this->getFacebook()->api($params);
 			
-			$cache->save(serialize($result), get_class($this) . $name);
+			$cache->save(serialize($result), $key);
 		}
 		
 		return $result;

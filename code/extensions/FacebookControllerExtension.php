@@ -156,7 +156,7 @@ class FacebookConnectExtension extends Extension {
 						}
 						
 						$member->logIn();
-					} else if(isset($result['email']) && ($member = Member::get()->filter('Email', $result['email']))) {
+					} else if(isset($result['email']) && ($member = Member::get()->filter('Email', $result['email'])->first())) {
 						$member->updateFacebookFields($result);
 
 						if(Config::inst()->get('FacebookControllerExtension', 'create_member')) {

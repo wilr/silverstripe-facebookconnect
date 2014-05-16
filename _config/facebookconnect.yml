@@ -7,7 +7,7 @@ Member:
 
 Controller:
   extensions:
-    - FacebookConnectExtension
+    - FacebookControllerExtension
 
 Authenticator::
   authenticators:

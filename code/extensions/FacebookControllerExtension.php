@@ -9,7 +9,7 @@ require_once(BASE_PATH .'/vendor/facebook/php-sdk/src/facebook.php');
  * @package facebookconnect
  */
 
-class FacebookConnectExtension extends Extension {
+class FacebookControllerExtension extends Extension {
 	
 	/**
 	 * @config
@@ -243,5 +243,32 @@ class FacebookConnectExtension extends Extension {
 		}
 		
 		return $link;
+	}
+	
+	/**
+	 * Permissions to require on the login button
+	 *
+	 * @return String
+	 */
+	public function getFacebookPermissions() {
+		return implode(',', Config::inst()->get('FacebookControllerExtension', 'permissions'));
+	}
+
+	/**
+	 * App Id
+	 *
+	 * @return String
+	 */
+	public function getFacebookAppId() {
+		return Config::inst()->get('FacebookControllerExtension', 'app_id');
+	}
+
+	/**
+	 * Language
+	 *
+	 * @return String
+	 */
+	public function getFacebookLanguage() {
+		return Config::inst()->get('FacebookControllerExtension', 'lang');
 	}
 }

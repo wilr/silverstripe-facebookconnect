@@ -11,7 +11,7 @@
     }],
     "require": {
         "silverstripe/framework": ">=3.1",
-        "facebook/php-sdk": "dev-master#5c5a3e80af30ea00e7682e94b31112c505051f50"
+        "facebook/php-sdk-v4": "@stable"
     },
     "extra": {
         "installer-name": "facebookconnect"

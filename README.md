@@ -20,7 +20,8 @@ interface. If you want to use the OAuth version see
 
 ### What it provides
 
-* Loads and setups Facebook Connect for Single Sign on via the Javascript SDK
+* Loads and setups Facebook Connect for Single Sign on via the Javascript SDK or
+ via a basic HTTP redirect
 
 * Authenticates users visiting the site - if they are logged into Facebook then 
  you can access their information via the following controls. You can also 
@@ -48,13 +49,13 @@ it won't save the information to the database
 To setup Facebook Connect your first need to download the module:
 
 ```
-composer require wilr/silverstripe-facebookconnect
+composer require "wilr/silverstripe-facebookconnect" "dev-master"
 ```
 
 [Register your website / application](https://developers.facebook.com/apps/?action=create)
 with Facebook.
 
-Set your configuration through the SilverStripe Config API. For instance, you 
+Set your configuration through the SilverStripe config API. For instance, you 
 could put this in your `mysite/_config/facebookconnect.yml` file:
 
 ```
@@ -66,6 +67,11 @@ FacebookControllerExtension:
 Update the database by running `/dev/build` to add the additional fields to 
 the `Member` table.
 
+To allow the user to login to the application either do it via the javascript 
+SDK or use the simple HTTP requests.
+
+#### Javascript SDK
+
 Include the `ConnectInit.ss` template in the `<body>` part of every site you 
 wish to call a Facebook function. This includes the Facebook JavaScript SDK. 
 
@@ -74,31 +80,32 @@ E.g. on `Page.ss`
 ```
 <body>
   <% include ConnectInit %>
+  ...
 ```
 
-Once you have done that you should be able to use the includes provided in this 
-module.
+#### Standard Method
 
 ```
-<% if CurrentFacebookMember %>
-	<p>Hi $CurrentFacebookMember.FirstName</p>
-	<% include ConnectLogout %>
-<% else %>
-	<% include ConnectLogin %>
-<% end_if %>
+<a href="$FacebookLoginLink">Login via Facebook</a>
 ```
 
-You can also access the Facebook member information in your PHP code. The 
-Facebook API connection and current member are cached on the controller object. 
-So for example if this is in your Page_Controller class
+You can also access the Facebook member information in your PHP code..
 
 ```php
 // returns the current facebook member (wrapped in a SS Member Object)  
 $this->getCurrentFacebookMember();
 
 // returns the API connection which you can use to write your own query
-$this->getFacebook(); 
+// while in a controller
+$this->getFacebookSession(); 
+
+// if you're not in a controller
+Controller::curr()->getFacebookSession();
+
 ```
+
+For more information about what you can do through the SDK see
+https://developers.facebook.com/docs/reference/php/4.0.0
 
 ### Options
 
@@ -136,7 +143,7 @@ A list of group codes to add the user. For instance if you want every member who
 joins through facebook to be added to a group `Facebook Members` set the 
 following:
 
-  FacebookConnectExtensions:
+  FacebookControllerExtension:
     member_groups:
       - facebook_members
 

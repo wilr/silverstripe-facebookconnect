@@ -20,7 +20,7 @@ class FacebookAuthenticator extends Authenticator {
 	}
 
 	/**
-	 * Return the facebook login form
+	 * Return the Facebook login form
 	 *
 	 * @return Form
 	 */
@@ -29,9 +29,9 @@ class FacebookAuthenticator extends Authenticator {
 	}
 
 	/**
-	 * Return the name for the facebook tab
+	 * Return the name for the Facebook tab
 	 *
-	 * @return String
+	 * @return string
 	 */
 	public static function get_name() {
 		return _t('FacebookAuthenicator.TITLE', "Facebook Connect");

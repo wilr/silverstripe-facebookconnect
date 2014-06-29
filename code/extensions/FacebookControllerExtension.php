@@ -1,15 +1,19 @@
 <?php
 
-require_once(BASE_PATH .'/vendor/facebook/php-sdk/src/facebook.php');
+use Facebook\FacebookSession;
+use Facebook\FacebookRequest;
+use Facebook\GraphUser;
+use Facebook\FacebookRequestException;
+use Facebook\FacebookJavaScriptLoginHelper;
 
 /**
- * Main controller class to handle Facebook Connect implementations. Extends the built in
- * SilverStripe controller to add addition template functionality.
+ * Main controller class to handle Facebook Connect implementations. Extends the 
+ * built in SilverStripe controller to add addition template functionality.
  *
  * @package facebookconnect
  */
 
-class FacebookConnectExtension extends Extension {
+class FacebookControllerExtension extends Extension {
 	
 	/**
 	 * @config
@@ -50,66 +54,45 @@ class FacebookConnectExtension extends Extension {
 	 * @var string $app_id
 	 */
 	private static $app_id = "";
-
-	/**
-	 * @config
-	 * @var string $lang
-	 */
-	private static $lang = "en_US";
 	
 	/**
 	 * @var ArrayData
 	 */
 	public $facebookMember = false;
-	
 
 	/**
-	 * Return the Facebook API class wrapped in a {@link SS_Cache} for
-	 * performance. Creates a new object if no connection has been implemented
-	 *
-	 * @return Facebook
+	 * @var 
 	 */
-	public function getFacebook() {
-		$cache = SS_Cache::factory(get_class($this));
-		
-		if(!($result = unserialize($cache->load(get_class($this))))) {
-			$result = new Facebook(array(
-				'appId'  => Config::inst()->get('FacebookControllerExtension', 'app_id'),
-				'secret' => Config::inst()->get('FacebookControllerExtension', 'api_secret'),
-				'cookie' => true,
-			));
+	private $session = null;
 
-			$cache->save(serialize($result), get_class($this));
-		}
-
-		return $result;
-	}
-	
 	/**
-	 * Call an API function but cache the result. 
-	 *
-	 * Passes the call through to {@link Facebook::api()} but looks up the
-	 * value in the {@link SS_Cache} first.
 	 * 
-	 * Bases the cache on the users session id so then we don't get incorrect information
-	 * for when users are viewing the cache of different users.
-	 *
-	 * @param string $name
-	 * @param string $params
-	 *
-	 * @return array
 	 */
-	public function callCached($name, $params) {
-		$cache = SS_Cache::factory(get_class($this) . session_id());
-		$key = rtrim(base64_encode(get_class($this) . $name), '=');
+	public function __construct() {
+		$this->beginFacebookSession();
+	}
 
-		if(!($result = unserialize($cache->load($key)))) {
-			$result = $this->getFacebook()->api($params);
-			
-			$cache->save(serialize($result), $key);
+	/**
+	 * @todo Error handler
+	 *
+	 * @return FacebookSession
+	 */
+	public function getFacebookSession() {
+		if($this->session) {
+			return $this->session;
 		}
-		
-		return $result;
+
+		try {
+			$helper = Injector::inst()->create("Facebook\FacebookRedirectLoginHelper", 
+				$this->getCurrentPageUrl()
+			);
+		} catch(\Exception $ex) {
+			SS_Log::log($ex, SS_Log::ERR);
+		}
+
+		$this->session = $helper->getSessionFromRedirect();
+
+		return $this->session;
 	}
 
 	/**
@@ -117,88 +100,135 @@ class FacebookConnectExtension extends Extension {
 	 * required files for facebook connect.
 	 */
 	public function onBeforeInit() {
-		$user = $this->getFacebook()->getUser();
+		$session = $this->getFacebookSession();
 
-		if(!isset($_GET['updatecache']) && $user) {
+		if(!$session) {
+			return;
+		}
+
+		$user = $this->getCurrentFacebookMember();
+
+		if($user) {
+			$this->facebookMember = $member;
+
 			try {
-				$result = $this->callCached('me', '/me');
+				if(!$member = Member::currentUser()) {
+					// member is not currently logged into SilverStripe. Look up 
+					// for a member with the UID which matches first.
+					$member = Member::get()->filter(array(
+						"FacebookUID" => $user->getId()
+					))->first();
 
-				// if email is empty and proxied_email is set instead
-				// write down proxied_email to email
-				if(!stristr($result['email'], '@')){
-					$result['email'] = $result['proxied_email'];
-				}
-				
-				// if logged in and authorized to fb sync details
-				if($member = Member::currentUser()) {
-					if(isset($result['email']) && ($result['email'] != $member->Email)) {
-						// member email has changed. Require new login
-						$member->logOut();
-					} else {
-						$member->updateFacebookFields($result);
-					
-						if(Config::inst()->get('FacebookControllerExtension', 'sync_member_details')) {
-							$member->write();
+					if(!$member) {
+						// see if we have a match based on email. From a 
+						// security point of view, users have to confirm their 
+						// email address in facebook so doing a match up is fine
+						$email = $user->getProperty('email');
+
+						if($email) {
+							$member = Member::get()->filter(array(
+								'Email' => $email
+							))->first();
 						}
 					}
-				} else {
-					// member is not currently logged into SilverStripe. Look up for
-					// a member with the UID which matches and log them in or
-					// create a new member
-					$SQL_uid = Convert::raw2sql($result['id']);
-					$member = Member::get()->filter("FacebookUID", $SQL_uid)->first();
 
-					if($member) {
-						$member->updateFacebookFields($result);
-						
-						if(Config::inst()->get('FacebookControllerExtension', 'sync_member_details')) {
-							$member->write();
-						}
-						
-						$member->logIn();
-					} else if(isset($result['email']) && ($member = Member::get()->filter('Email', $result['email'])->first())) {
-						$member->updateFacebookFields($result);
-
-						if(Config::inst()->get('FacebookControllerExtension', 'create_member')) {
-							$member->write();
-							$member->logIn();
-						}
-					} else {
-						// create a new member
-						$member = singleton('Member')->addFacebookMember(
-							$result, 
-							Config::inst()->get('FacebookControllerExtension', 'create_member')
-						);
+					if(!$member) {
+						// fallback, if still 
+						$member = Injector::create('Member');
 					}
 				}
 				
+
+				$this->updateMemberFromFacebook($member, $user);		
+				$member->logIn();
+
 				Session::set('logged-in-member-via-faceboook', true);
-				
-				if($groups = Config::inst()->get('FacebookControllerExtension', 'member_groups')) {
-					foreach($groups as $group) {
-						$member->addToGroupByCode($group);
-					}
-				}
-				
-				$this->facebookMember = $member;
-			} catch (FacebookApiException $e) { 
-
+			} catch (Exception $e) { 
+				SS_Log::log($e, SS_Log::ERR);
 			}
 		} else if($logged = Session::get('logged-in-member-via-faceboook')) {
-			Session::clear('logged-in-member-via-faceboook');
-			
-			$member = Member::currentUser();
-
-			if($member) {
-				$member->logOut();
-			}
+			$this->logUserOut();
 		}
 	}
 	
 	/**
+	 * @param Member
+	 *
+	 * @return Member
+	 */
+	protected function updateMemberFromFacebook($member, $info) {
+		$sync = Config::inst()->get('FacebookControllerExtension', 'sync_member_details');
+		$create = Config::inst()->get('FacebookControllerExtension', 'create_member');
+
+		$member->updateFacebookFields($info, $sync);
+
+		// sync details	to the database
+		if(($member->ID && $sync) || $create) {
+			if($member->isChanged()) {
+				$member->write();
+			}
+		}
+
+		// ensure members are in the correct groups
+		if($groups = Config::inst()->get('FacebookControllerExtension', 'member_groups')) {
+			foreach($groups as $group) {
+				$member->addToGroupByCode($group);
+			}
+		}
+
+		return $member;
+	}
+
+	/**
+	 * @return FacebookSession|null
+	 */
+	protected function beginFacebookSession() {
+		$appId = Config::inst()->get('FacebookControllerExtension', 'app_id');
+		$secret = Config::inst()->get('FacebookControllerExtension', 'api_secret');
+
+		if(!$appId || !$secret) {
+			return null;
+		}
+
+		FacebookSession::setDefaultApplication($appId, $secret);
+
+		if(session_status() !== PHP_SESSION_ACTIVE) {
+			Session::start();
+		}
+	}
+
+	/**
+	 * @return GraphUser|null
+	 */
+	public function getFacebookUser() {
+		try {
+			$user = (new FacebookRequest(
+				$session, 'GET', '/me'
+			))->execute()->getGraphObject(GraphUser::className());
+
+			return $user;
+		} catch(FacebookRequestException $e) {
+			SS_Log::log($e, SS_Log::ERR);
+		}
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function logFacebookUserOut() {
+		Session::clear('logged-in-member-via-faceboook');
+			
+		$member = Member::currentUser();
+
+		if($member) {
+			$member->logOut();
+		}
+	}
+
+	/**
 	 * @return ArrayData
 	 */
-	public function getCurrentfacebookMember() {
+	public function getCurrentFacebookMember() {
 		if(isset($this->facebookMember) && $this->facebookMember) {
 			return $this->facebookMember;
 		}
@@ -206,42 +236,36 @@ class FacebookConnectExtension extends Extension {
 	
 	
 	/**
-	 * Logout link
-	 * 
-	 * @return String
+	 * @return string
 	 */
 	public function getFacebookLogoutLink() {
-		$link = $this->getLink();
-		
-		return $this->getFacebook()->getLogoutUrl(array(
-			'next' => Controller::join_links($link, '?updatecache=1')
-		));
+		$helper = new Facebook\FacebookRedirectLoginHelper($this->getCurrentPageUrl());
+
+		return $helper->getLogoutUrl();
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getFacebookLoginLink() {
-		$link = $this->getLink();
-		
-		return $this->getFacebook()->getLoginUrl(array(
-			'next' => Controller::join_links($link, '?updatecache=1')
-		));
+		$helper = new Facebook\FacebookRedirectLoginHelper($this->getCurrentPageUrl());
+		$scope = Config::inst()->get('FacebookControllerExtension', 'permissions');
+		if(!$scope) $scope = array();
+
+		return $helper->getLoginUrl($scope);
 	}
-	
+
 	/**
-	 * @returnstring
+	 * @return string
 	 */
-	public function getLink() {
-		$controller = Controller::curr();
-		$link = Director::absoluteBaseURL();
-		
-		if($controller->hasMethod('AbsoluteLink')) {
-			$link = $controller->AbsoluteLink();
-		} else if($controller->hasMethod('Link')) {
-			$link .= $controller->Link();
-		}
-		
-		return $link;
+	public function getFacebookAppId() {
+		return Config::inst()->get('FacebookControllerExtension', 'app_id');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCurrentPageUrl() {
+		return Director::protocol() . "//$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 	}
 }

@@ -69,7 +69,6 @@ class FacebookControllerExtension extends Extension {
 	 * 
 	 */
 	public function __construct() {
-		$this->beginFacebookSession();
 	}
 
 	/**
@@ -81,6 +80,8 @@ class FacebookControllerExtension extends Extension {
 		if($this->session) {
 			return $this->session;
 		}
+
+		$this->beginFacebookSession();
 
 		try {
 			$helper = Injector::inst()->create("Facebook\FacebookRedirectLoginHelper", 

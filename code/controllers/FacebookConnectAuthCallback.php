@@ -74,7 +74,7 @@ class FacebookConnectAuthCallback extends Controller {
 					}
 
 					if(!$member) {
-						$member = Injector::create('Member');
+						$member = Injector::inst()->create('Member');
 					}
 				}
 				

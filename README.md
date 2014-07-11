@@ -9,44 +9,27 @@
 
 ## Overview
 
-The module provides a **basic** interface for implementing Facebook Connect on 
-your SilverStripe website. Facebook Connect allows users to login to your 
-website using their Facebook account details. This module integrates that 
-single sign-on within the existing SilverStripe member system.
-
-This has been designed to use the Javascript SDK rather than the OAuth 
-interface. If you want to use the OAuth version see 
-[here](https://svn.pocketrent.com/public/facebook/trunk/).
+The module provides a **basic** interface for implementing the Facebook PHP SDK 
+on your SilverStripe website. The Facebook SDK allows users to login to your 
+website using their Facebook account details, creating a single sign-on within 
+the existing SilverStripe member system.
 
 ### What it provides
 
-* Loads and setups Facebook Connect for Single Sign on via the Javascript SDK or
- via a basic HTTP redirect
+* Loads the Facebook PHP SDK.
 
-* Authenticates users visiting the site - if they are logged into Facebook then 
- you can access their information via the following controls. You can also 
- optionally set whether to save visitors information as members on your site 
- (for example if you need to cache their information)
+* Provides $FacebookLoginLink template variable to generate a link to login to
+Facebook. Upon clicking the link and being redirected back to your application
+the SilverStripe `Member::currentUser()` will be populated with a `Member` 
+instance linked to the users Facebook profile.
 
 ```
 <% with CurrentMember %>
-	$FirstName $LastName $Avatar(small)
-<% end_with %>
-```
-
-If you have disabled the creation of members you can use the Facebook specific 
-member control. This still returns a member object the only difference is that 
-it won't save the information to the database
-
-```
-<% with CurrentFacebookMember %>
-	$FirstName $LastName $Avatar(small)
+	$Name $Avatar(small)
 <% end_with %>
 ```	
 	
-### How to use
-
-To setup Facebook Connect your first need to download the module:
+## Installation
 
 ```
 composer require "wilr/silverstripe-facebookconnect" "dev-master"
@@ -55,8 +38,8 @@ composer require "wilr/silverstripe-facebookconnect" "dev-master"
 [Register your website / application](https://developers.facebook.com/apps/?action=create)
 with Facebook.
 
-Set your configuration through the SilverStripe config API. For instance, you 
-could put this in your `mysite/_config/facebookconnect.yml` file:
+Set your configuration through the SilverStripe Config API. For example I keep
+my configuration in `mysite/_config/facebookconnect.yml` file:
 
 ```
 FacebookControllerExtension:
@@ -65,58 +48,33 @@ FacebookControllerExtension:
 ```
 
 Update the database by running `/dev/build` to add the additional fields to 
-the `Member` table.
-
-To allow the user to login to the application either do it via the javascript 
-SDK or use the simple HTTP requests.
-
-#### Javascript SDK
-
-Include the `ConnectInit.ss` template in the `<body>` part of every site you 
-wish to call a Facebook function. This includes the Facebook JavaScript SDK. 
-
-E.g. on `Page.ss`
-
-```
-<body>
-  <% include ConnectInit %>
-  ...
-```
-
-#### Standard Method
+the `Member` table and make sure you `?flush=1` when you reload your website.
 
 ```
 <a href="$FacebookLoginLink">Login via Facebook</a>
 ```
 
-You can also access the Facebook member information in your PHP code..
+You can also access the Facebook PHP SDK in your PHP code..
 
 ```php
-// returns the current facebook member (wrapped in a SS Member Object)  
-$this->getCurrentFacebookMember();
-
-// returns the API connection which you can use to write your own query
-// while in a controller
-$this->getFacebookSession(); 
-
-// if you're not in a controller
-Controller::curr()->getFacebookSession();
-
+// https://developers.facebook.com/docs/php/FacebookSession/4.0.0
+$session = Controller::curr()->getFacebookSession();
 ```
 
-For more information about what you can do through the SDK see
+For more information about what you can do through the SDK see:
+
 https://developers.facebook.com/docs/reference/php/4.0.0
 
 ### Options
 
-All the following values are set either via the PHP Config API like follows
+All the following values are set either via the Config API like follows
 
-  Config::inst()->update('FacebookControllerExtension', 'OptionName', 'Value')
+  Config::inst()->update('FacebookControllerExtension', '$option', '$value')
 
 Or (more recommended) through the YAML API 
 
   FacebookControllerExtension:
-    OptionName: Value
+    option: value
 
 ### app_id
 

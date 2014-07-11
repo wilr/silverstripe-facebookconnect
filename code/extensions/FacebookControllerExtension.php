@@ -4,7 +4,6 @@ use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\GraphUser;
 use Facebook\FacebookRequestException;
-use Facebook\FacebookJavaScriptLoginHelper;
 
 /**
  * Main controller class to handle Facebook Connect implementations. Extends the 
@@ -58,134 +57,41 @@ class FacebookControllerExtension extends Extension {
 	/**
 	 * @var ArrayData
 	 */
-	public $facebookMember = false;
+	public $facebookMember;
 
 	/**
 	 * @var 
 	 */
-	private $session = null;
+	private $session;
 
 	/**
-	 * 
+	 * @var Facebook\FacebookRedirectLoginHelper
+	 */
+	private $helper;
+
+	/**
+	 * @var string
+	 */
+	const SESSION_REDIRECT_URL_FLAG = 'redirectfacebookuser';
+
+	/**
+	 * @var string
+	 */
+	const FACEBOOK_ACCESS_TOKEN = 'facebookaccesstoken';
+
+	/**
+	 *
 	 */
 	public function __construct() {
-	}
-
-	/**
-	 * @todo Error handler
-	 *
-	 * @return FacebookSession
-	 */
-	public function getFacebookSession() {
-		if($this->session) {
-			return $this->session;
-		}
-
-		$this->beginFacebookSession();
-
-		try {
-			$helper = Injector::inst()->create("Facebook\FacebookRedirectLoginHelper", 
-				$this->getCurrentPageUrl()
-			);
-		} catch(\Exception $ex) {
-			SS_Log::log($ex, SS_Log::ERR);
-		}
-
-		$this->session = $helper->getSessionFromRedirect();
-
-		return $this->session;
-	}
-
-	/**
-	 * Extends the built in {@link Controller::init()} function to load the 
-	 * required files for facebook connect.
-	 */
-	public function onBeforeInit() {
-		$session = $this->getFacebookSession();
-
-		if(!$session) {
-			return;
-		}
-
-		$user = $this->getCurrentFacebookMember();
-
-		if($user) {
-			$this->facebookMember = $member;
-
-			try {
-				if(!$member = Member::currentUser()) {
-					// member is not currently logged into SilverStripe. Look up 
-					// for a member with the UID which matches first.
-					$member = Member::get()->filter(array(
-						"FacebookUID" => $user->getId()
-					))->first();
-
-					if(!$member) {
-						// see if we have a match based on email. From a 
-						// security point of view, users have to confirm their 
-						// email address in facebook so doing a match up is fine
-						$email = $user->getProperty('email');
-
-						if($email) {
-							$member = Member::get()->filter(array(
-								'Email' => $email
-							))->first();
-						}
-					}
-
-					if(!$member) {
-						// fallback, if still 
-						$member = Injector::create('Member');
-					}
-				}
-				
-
-				$this->updateMemberFromFacebook($member, $user);		
-				$member->logIn();
-
-				Session::set('logged-in-member-via-faceboook', true);
-			} catch (Exception $e) { 
-				SS_Log::log($e, SS_Log::ERR);
-			}
-		} else if($logged = Session::get('logged-in-member-via-faceboook')) {
-			$this->logUserOut();
-		}
-	}
+		parent::__construct();
 	
-	/**
-	 * @param Member
-	 *
-	 * @return Member
-	 */
-	protected function updateMemberFromFacebook($member, $info) {
-		$sync = Config::inst()->get('FacebookControllerExtension', 'sync_member_details');
-		$create = Config::inst()->get('FacebookControllerExtension', 'create_member');
+		$appId = Config::inst()->get(
+			'FacebookControllerExtension', 'app_id'
+		);
 
-		$member->updateFacebookFields($info, $sync);
-
-		// sync details	to the database
-		if(($member->ID && $sync) || $create) {
-			if($member->isChanged()) {
-				$member->write();
-			}
-		}
-
-		// ensure members are in the correct groups
-		if($groups = Config::inst()->get('FacebookControllerExtension', 'member_groups')) {
-			foreach($groups as $group) {
-				$member->addToGroupByCode($group);
-			}
-		}
-
-		return $member;
-	}
-
-	/**
-	 * @return FacebookSession|null
-	 */
-	protected function beginFacebookSession() {
-		$appId = Config::inst()->get('FacebookControllerExtension', 'app_id');
-		$secret = Config::inst()->get('FacebookControllerExtension', 'api_secret');
+		$secret = Config::inst()->get(
+			'FacebookControllerExtension', 'api_secret'
+		);
 
 		if(!$appId || !$secret) {
 			return null;
@@ -199,61 +105,65 @@ class FacebookControllerExtension extends Extension {
 	}
 
 	/**
-	 * @return GraphUser|null
+	 * @return FacebookSession
 	 */
-	public function getFacebookUser() {
+	public function getFacebookSession() {
+		if(!$this->session) {
+			$accessToken = Session::get(
+				FacebookControllerExtension::FACEBOOK_ACCESS_TOKEN
+			);
+
+			if($accessToken) {
+				$this->session = new FacebookSession($accessToken);
+			}
+		}
+
+		return $this->session;
+	}
+
+	/**
+	 * @return FacebookRedirectLoginHelper
+	 */
+	public function getFacebookHelper() {
+		if($this->helper) {
+			return $this->helper;
+		}
+
 		try {
-			$user = (new FacebookRequest(
-				$session, 'GET', '/me'
-			))->execute()->getGraphObject(GraphUser::className());
-
-			return $user;
-		} catch(FacebookRequestException $e) {
-			SS_Log::log($e, SS_Log::ERR);
+			$this->helper = Injector::inst()->create(
+				"Facebook\FacebookRedirectLoginHelper", 
+				$this->getFacebookCallbackLink()
+			);
+		} catch (Exception $e) {
+			SS_Log::log($e, SS_Log::ERROR);
 		}
-	}
 
-	/**
-	 * @return void
-	 */
-	protected function logFacebookUserOut() {
-		Session::clear('logged-in-member-via-faceboook');
-			
-		$member = Member::currentUser();
-
-		if($member) {
-			$member->logOut();
-		}
-	}
-
-	/**
-	 * @return ArrayData
-	 */
-	public function getCurrentFacebookMember() {
-		if(isset($this->facebookMember) && $this->facebookMember) {
-			return $this->facebookMember;
-		}
-	}
-	
-	
-	/**
-	 * @return string
-	 */
-	public function getFacebookLogoutLink() {
-		$helper = new Facebook\FacebookRedirectLoginHelper($this->getCurrentPageUrl());
-
-		return $helper->getLogoutUrl();
+		return $this->helper;
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getFacebookLoginLink() {
-		$helper = new Facebook\FacebookRedirectLoginHelper($this->getCurrentPageUrl());
-		$scope = Config::inst()->get('FacebookControllerExtension', 'permissions');
-		if(!$scope) $scope = array();
+		// save the url that this page is on to session. The user will be 
+		// redirected back here.
+		Session::set(
+			self::SESSION_REDIRECT_URL_FLAG, $this->getCurrentPageUrl()
+		);
 
-		return $helper->getLoginUrl($scope);
+		$scope = Config::inst()->get(
+			'FacebookControllerExtension', 'permissions'
+		);
+
+		if(!$scope) {
+			$scope = array();
+		}
+
+		if($helper = $this->getFacebookHelper()) {
+			return $helper->getLoginUrl($scope);
+		}
+
+		return null;
 	}
 
 	/**
@@ -267,6 +177,43 @@ class FacebookControllerExtension extends Extension {
 	 * @return string
 	 */
 	public function getCurrentPageUrl() {
-		return Director::protocol() . "//$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+		$url = Director::protocol() . "$_SERVER[HTTP_HOST]";
+		$pos = strpos($_SERVER['REQUEST_URI'], '?');
+
+		$get = $_GET;
+
+		// tidy up get.
+		unset($get['code']); 
+		unset($get['state']);
+		unset($get['url']);
+
+		// if the current page is the login page and the page contains a back
+		// URL then we want to redirect the user to that instead.
+		if(isset($get['BackURL'])) {
+			$last = strlen($get['BackURL']);
+			$end = ($pos = strpos($get['BackURL'], '?')) ? $pos : $last;
+			$url .= substr($get['BackURL'], 0, $end);
+
+			unset($get['BackURL']);
+		} else if($pos !== false) {
+			$url .= substr($_SERVER['REQUEST_URI'], 0, $pos);
+		} else {
+			$url .= $_SERVER['REQUEST_URI'];
+		}
+
+		$qs = http_build_query($get);
+		$url .= ($qs) ? "?$qs" : '';
+
+		return $url;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFacebookCallbackLink() {
+		return Controller::join_links(
+			Director::absoluteBaseUrl(), 
+			'FacebookConnectAuthCallback/connect'
+		);
 	}
 }

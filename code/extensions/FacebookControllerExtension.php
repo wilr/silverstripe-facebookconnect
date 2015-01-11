@@ -135,7 +135,7 @@ class FacebookControllerExtension extends Extension {
 				$this->getFacebookCallbackLink()
 			);
 		} catch (Exception $e) {
-			SS_Log::log($e, SS_Log::ERROR);
+			SS_Log::log($e, SS_Log::ERR);
 		}
 
 		return $this->helper;

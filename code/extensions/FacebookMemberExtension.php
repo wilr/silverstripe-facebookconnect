@@ -19,11 +19,11 @@ class FacebookMemberExtension extends DataExtension {
 	 * @var array
 	 */
 	private static $db = array(
-		'Email'				=> 'Varchar(255)',
+		'Email'			=> 'Varchar(255)',
 		'FacebookUID' 		=> 'Varchar(200)',
 		'FacebookLink'		=> 'Varchar(200)',
 		'FacebookTimezone'	=> 'Varchar(200)',
-		'FacebookAccessToken' => 'Varchar'
+		'FacebookAccessToken' 	=> 'Varchar'
 	);
 	
 	public function updateCMSFields(FieldList $fields) {
@@ -100,7 +100,8 @@ class FacebookMemberExtension extends DataExtension {
 		// ensure members are in the correct groups
 		if($groups = Config::inst()->get('FacebookControllerExtension', 'member_groups')) {
 			foreach($groups as $group) {
-				$this->owner->addToGroupByCode($group);
+				// check if always in group when not add it
+                            	if(!$this->owner->inGroup($group)) $this->owner->addToGroupByCode($group);
 			}
 		}
 	}

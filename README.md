@@ -103,7 +103,7 @@ following:
 
   FacebookControllerExtension:
     member_groups:
-      - facebook_members
+      - facebook-members
 
 ### permissions
 

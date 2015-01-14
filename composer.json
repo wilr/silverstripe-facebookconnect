@@ -1,5 +1,5 @@
 {
-    "name": "wilr/silverstripe-facebookconnect",
+    "name": "hpmewes/silverstripe-facebookconnect",
     "description": "Integration of Facebook Connect into SilverStripe",
     "keywords": ["facebook", "silverstripe"],
     "type": "silverstripe-module",

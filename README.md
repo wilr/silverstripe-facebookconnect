@@ -114,6 +114,15 @@ on [developers.facebook.com](https://developers.facebook.com/docs/reference/logi
 
 Ensure you include email in your list if you require `create_member`.
 
+### facebook_fields
+
+  Default 'email','first_name','last_name'
+
+A list of fields you want to retrieve from Facebook for the user. Available fields are listed
+on [developers.facebook.com](https://developers.facebook.com/docs/graph-api/reference/user).
+
+Ensure you include email in your list if you require `create_member`.
+
 ### sync_member_details
 
   Optional, default true

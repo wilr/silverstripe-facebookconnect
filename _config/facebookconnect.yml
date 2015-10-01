@@ -12,3 +12,9 @@ Controller:
 Authenticator::
   authenticators:
     - FacebookAuthenticator
+    
+FacebookControllerExtension:
+  facebook_fields:
+    - email
+    - first_name
+    - last_name

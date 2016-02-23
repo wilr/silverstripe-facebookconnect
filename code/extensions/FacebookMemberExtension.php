@@ -59,10 +59,10 @@ class FacebookMemberExtension extends DataExtension
     /**
      * Sync the new data from a users Facebook profile to the member database.
      *
-     * @param GraphUser $result
+     * @param Facebook\GraphUser $result
      * @param bool $sync Flag to whether we override fields like first name
      */
-    public function updateFacebookFields(GraphUser $result, $override = true)
+    public function updateFacebookFields($result, $override = true)
     {
         $this->owner->FacebookLink    = $result->getProperty('link');
         $this->owner->FacebookUID    = $result->getProperty('id');

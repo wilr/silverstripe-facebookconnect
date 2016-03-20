@@ -12,7 +12,7 @@ Controller:
 Authenticator::
   authenticators:
     - FacebookAuthenticator
-    
+
 FacebookControllerExtension:
   facebook_fields:
     - email
@@ -20,4 +20,4 @@ FacebookControllerExtension:
     - last_name
 Director:
   rules:
-    - 'FacebookConnectAuthCallback//$Action/$ID/$OtherID': 'FacebookConnectAuthCallback'
+    'FacebookConnectAuthCallback//$Action/$ID/$OtherID': 'FacebookConnectAuthCallback'

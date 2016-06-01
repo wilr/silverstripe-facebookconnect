@@ -10,7 +10,7 @@ use Facebook\FacebookRequestException;
  */
 class FacebookConnectAuthCallback extends Controller
 {
-    
+
     private static $allowed_actions = array(
         'connect'
     );
@@ -23,7 +23,7 @@ class FacebookConnectAuthCallback extends Controller
         );
 
         $secret = Config::inst()->get(
-            'FacebookControllerExtension', 'app_secret'
+            'FacebookControllerExtension', 'api_secret'
         );
 
         $session = $this->getFacebookHelper()->getSessionFromRedirect();
@@ -31,7 +31,7 @@ class FacebookConnectAuthCallback extends Controller
         if ($session) {
             $token = $session->getAccessToken();
 
-            // get a long lived token by default. Access token is saved in 
+            // get a long lived token by default. Access token is saved in
             // session.
             try {
                 $long = $token->extend($appId, $secret);
@@ -44,14 +44,14 @@ class FacebookConnectAuthCallback extends Controller
             } catch (Exception $e) {
                 $accessTokenValue = (string) $token;
             }
-            
+
             try {
                 Session::set(
                     FacebookControllerExtension::FACEBOOK_ACCESS_TOKEN,
                     $accessTokenValue
                 );
 
-                
+
                 $fields = Config::inst()->get(
                     'FacebookControllerExtension', 'facebook_fields'
                 );
@@ -61,15 +61,15 @@ class FacebookConnectAuthCallback extends Controller
                 ))->execute()->getGraphObject(GraphUser::className());
 
                 if (!$member = Member::currentUser()) {
-                    // member is not currently logged into SilverStripe. Look up 
+                    // member is not currently logged into SilverStripe. Look up
                     // for a member with the UID which matches first.
                     $member = Member::get()->filter(array(
                         "FacebookUID" => $user->getId()
                     ))->first();
 
                     if (!$member) {
-                        // see if we have a match based on email. From a 
-                        // security point of view, users have to confirm their 
+                        // see if we have a match based on email. From a
+                        // security point of view, users have to confirm their
                         // email address in facebook so doing a match up is fine
                         $email = $user->getProperty('email');
 
@@ -84,7 +84,7 @@ class FacebookConnectAuthCallback extends Controller
                         $member = Injector::inst()->create('Member');
                     }
                 }
-                
+
                 $member->syncFacebookDetails($user);
                 $member->logIn();
 

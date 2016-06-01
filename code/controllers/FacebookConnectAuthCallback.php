@@ -23,7 +23,7 @@ class FacebookConnectAuthCallback extends Controller
         );
 
         $secret = Config::inst()->get(
-            'FacebookControllerExtension', 'app_secret'
+            'FacebookControllerExtension', 'api_secret'
         );
 
         $session = $this->getFacebookHelper()->getSessionFromRedirect();

@@ -6,7 +6,7 @@ use Facebook\GraphUser;
 use Facebook\FacebookRequestException;
 
 /**
- * Main controller class to handle Facebook Connect implementations. Extends the 
+ * Main controller class to handle Facebook Connect implementations. Extends the
  * built in SilverStripe controller to add addition template functionality.
  *
  * @package facebookconnect
@@ -14,19 +14,19 @@ use Facebook\FacebookRequestException;
 
 class FacebookControllerExtension extends Extension
 {
-    
+
     /**
      * @config
      * @var bool $create_member
      */
     private static $create_member = true;
-    
+
     /**
      * @config
      * @var array $member_groups
      */
     private static $member_groups = array();
-    
+
     /**
      * @see http://developers.facebook.com/docs/authentication/permissions
      *
@@ -36,7 +36,7 @@ class FacebookControllerExtension extends Extension
     private static $permissions = array(
         'email'
     );
-    
+
     /**
      * @config
      * @var bool $sync_member_details
@@ -54,14 +54,14 @@ class FacebookControllerExtension extends Extension
      * @var string $app_id
      */
     private static $app_id = "";
-    
+
     /**
      * @var ArrayData
      */
     public $facebookMember;
 
     /**
-     * @var 
+     * @var
      */
     private $session;
 
@@ -86,7 +86,7 @@ class FacebookControllerExtension extends Extension
     public function __construct()
     {
         parent::__construct();
-    
+
         $appId = Config::inst()->get(
             'FacebookControllerExtension', 'app_id'
         );
@@ -150,25 +150,32 @@ class FacebookControllerExtension extends Extension
      */
     public function getFacebookLoginLink()
     {
-        // save the url that this page is on to session. The user will be 
+        // save the url that this page is on to session. The user will be
         // redirected back here.
         Session::set(
             self::SESSION_REDIRECT_URL_FLAG, $this->getCurrentPageUrl()
         );
 
-        $scope = Config::inst()->get(
-            'FacebookControllerExtension', 'permissions'
-        );
+        $cache = SS_Cache::factory('facebookloginurl');
+        $cachekey = SecurityToken::getSecurityID();
 
-        if (!$scope) {
-            $scope = array();
+        if (!($result = $cache->load($cachekey))) {
+            $scope = Config::inst()->get(
+                'FacebookControllerExtension', 'permissions'
+            );
+
+            if (!$scope) {
+                $scope = array();
+            }
+
+            if ($helper = $this->getFacebookHelper()) {
+                $result = $helper->getLoginUrl($scope);
+
+                $cache->save($result, $cachekey);
+            }
         }
 
-        if ($helper = $this->getFacebookHelper()) {
-            return $helper->getLoginUrl($scope);
-        }
-
-        return null;
+        return $result;
     }
 
     /**
@@ -223,5 +230,10 @@ class FacebookControllerExtension extends Extension
             Director::absoluteBaseUrl(),
             'FacebookConnectAuthCallback/connect'
         );
+    }
+
+    public function CurrentFacebookMember()
+    {
+        return Member::currentUser();
     }
 }

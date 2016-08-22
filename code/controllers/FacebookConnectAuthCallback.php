@@ -101,5 +101,7 @@ class FacebookConnectAuthCallback extends Controller
         } else {
             return $this->httpError(400);
         }
+
+        return $this->httpError(400);
     }
 }

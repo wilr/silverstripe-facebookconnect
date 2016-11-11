@@ -29,9 +29,11 @@ class FacebookMemberExtension extends DataExtension
     
     public function updateCMSFields(FieldList $fields)
     {
-        $fields->makeFieldReadonly('FacebookUID');
-        $fields->makeFieldReadonly('FacebookLink');
-        $fields->makeFieldReadonly('FacebookTimezone');
+        if($fields->getField('FacebookUID')){
+            $fields->makeFieldReadonly('FacebookUID');
+            $fields->makeFieldReadonly('FacebookLink');
+            $fields->makeFieldReadonly('FacebookTimezone');
+        }
     }
     
     /**

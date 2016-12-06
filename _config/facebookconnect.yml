@@ -9,7 +9,7 @@ Controller:
   extensions:
     - FacebookControllerExtension
 
-Authenticator::
+Authenticator:
   authenticators:
     - FacebookAuthenticator
 

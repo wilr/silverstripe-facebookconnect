@@ -8,9 +8,9 @@
 
 class FacebookAuthenticator extends Authenticator
 {
-    
+
     /**
-     * Authentication is handled by Facebook rather than us this needs to 
+     * Authentication is handled by Facebook rather than us this needs to
      * return the new member object which is created. Creation of the member
      * is handled by {@link FacebookConnect::onBeforeInt()}
      *
@@ -28,7 +28,7 @@ class FacebookAuthenticator extends Authenticator
      */
     public static function get_login_form(Controller $controller)
     {
-        return Object::create("FacebookLoginForm", $controller, "FacebookLoginForm");
+        return new FacebookLoginForm($controller, "FacebookLoginForm");
     }
 
     /**
